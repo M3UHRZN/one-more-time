@@ -1131,7 +1131,7 @@ GameObject:
   - component: {fileID: 1068175606}
   - component: {fileID: 1068175605}
   - component: {fileID: 1068175604}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1355,7 +1355,7 @@ GameObject:
   - component: {fileID: 1722465871}
   - component: {fileID: 1722465870}
   - component: {fileID: 1722465869}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Slope
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1467,7 +1467,7 @@ GameObject:
   - component: {fileID: 2028527888}
   - component: {fileID: 2028527887}
   - component: {fileID: 2028527886}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Runway
   m_TagString: Untagged
   m_Icon: {fileID: 0}
