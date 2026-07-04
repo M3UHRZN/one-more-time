@@ -29,9 +29,11 @@ namespace OneMoreTime
 
         public bool CanConsumeJump => _bufferTimer > 0f && _coyoteTimer > 0f;
 
-        public bool TryConsumeJump()
+        public bool TryConsumeJump() => TryConsumeJump(false);
+
+        public bool TryConsumeJump(bool wasAvailableAtTickStart)
         {
-            if (CanConsumeJump)
+            if (wasAvailableAtTickStart || CanConsumeJump)
             {
                 _bufferTimer = 0f;
                 _coyoteTimer = 0f;

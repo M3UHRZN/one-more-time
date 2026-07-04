@@ -105,6 +105,38 @@ public class PlayerMovementControllerTests
             "After separation, the jumped wall must remain blocked by wall-jump cooldown.");
     }
 
+    [Test]
+    public void FixedUpdate_WallJumpAtContactGraceExpiry_UsesTickStartEligibility()
+    {
+        PlayerMovementController controller = CreateController(Vector3.zero);
+        WallRunState wallRun = GetField<WallRunState>(controller, "_wallRun");
+        Assert.IsTrue(wallRun.TryEnter(Vector3.left, Vector3.forward, 10f, 0f));
+        wallRun.Tick(0.081f, false, Vector3.zero);
+        Assert.IsTrue(wallRun.IsActive);
+
+        JumpGate wallGate = GetField<JumpGate>(controller, "_wallGate");
+        wallGate.Tick(0f, true);
+        wallGate.Tick(0.081f, false);
+        wallGate.PressJump();
+        Assert.IsTrue(wallGate.CanConsumeJump,
+            "The wall jump must be eligible at the start of the boundary tick.");
+        SetField(controller, "_lastHorizontalVelocity", Vector3.forward * 10f);
+
+        InvokeFixedUpdate(controller);
+
+        Assert.IsFalse(GetField<bool>(controller, "_onWall"));
+        Assert.IsFalse(wallRun.IsActive);
+        Vector3 horizontalVelocity = GetField<Vector3>(controller, "_lastHorizontalVelocity");
+        Assert.AreEqual(10f, horizontalVelocity.z, 0.001f,
+            "The wall jump must retain wall-run tangent speed at contact-grace expiry.");
+        Assert.Less(horizontalVelocity.x, 0f,
+            "The wall jump must use the retained wall normal at contact-grace expiry.");
+
+        wallRun.Tick(0.01f, false, Vector3.zero);
+        Assert.IsFalse(wallRun.CanEnter(Vector3.left),
+            "The contact-grace wall jump must start the same-wall cooldown.");
+    }
+
     PlayerMovementController CreateController(Vector3 position)
     {
         Object projectInputAsset = AssetDatabase.LoadMainAssetAtPath("Assets/InputSystem_Actions.inputactions");

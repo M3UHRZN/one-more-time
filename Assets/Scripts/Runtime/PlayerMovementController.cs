@@ -89,9 +89,11 @@ namespace OneMoreTime
             bool hasWallContact = ProbeWall(out probedWallNormal, out bool hasBlockedWallContact);
             _onWall = !_grounded && hasWallContact;
             if (_onWall) _wallNormal = probedWallNormal;
+            bool wallJumpAvailableAtTickStart = _wallRun.IsActive && _wallGate.CanConsumeJump;
             _wallGate.Tick(dt, _onWall);
             bool wallRunOwnedTick = _wallRun.IsActive;
-            bool wallJumpFromOwnedRun = wallRunOwnedTick && _wallGate.CanConsumeJump;
+            bool wallJumpFromOwnedRun = wallRunOwnedTick
+                && (wallJumpAvailableAtTickStart || _wallGate.CanConsumeJump);
             Vector3 ownedWallNormal = wallRunOwnedTick ? _wallRun.WallNormal : Vector3.zero;
             _wallRun.Tick(dt, _onWall, probedWallNormal, hasBlockedWallContact);
             bool wallRunExpiredThisTick = wallRunOwnedTick && !_wallRun.IsActive
@@ -207,7 +209,8 @@ namespace OneMoreTime
                 nextVel = MovementMath.ApplyJump(nextVel, MovementMath.JumpVelocity(config.jumpHeight, config.gravity));
                 _sliding = false;
             }
-            else if (jumpSource == MovementJumpSource.Wall && _wallGate.TryConsumeJump())
+            else if (jumpSource == MovementJumpSource.Wall
+                && _wallGate.TryConsumeJump(wallJumpAvailableAtTickStart))
             {
                 _jumpGate.CancelPendingJump();
                 Vector3 jumpNormal = wallJumpFromOwnedRun
