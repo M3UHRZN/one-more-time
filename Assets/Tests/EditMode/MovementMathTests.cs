@@ -25,24 +25,33 @@ public class MovementMathTests
     }
 
     [Test]
-    public void SlopeAccel_FlatGround_IsZero()
+    public void SlideVelocity_SidewaysOnSlope_CurvesTowardFallLine()
     {
-        Assert.AreEqual(0f, MovementMath.SlopeAccel(Vector3.up, Vector3.forward, -25f), 0.0001f);
+        // n=(0,1,1) normalize → fall-line +Z/-Y. Yanal (+X) giren hız aşağı (+Z, -Y) kazanmalı.
+        Vector3 n = new Vector3(0f, 1f, 1f).normalized;
+        Vector3 r = MovementMath.SlideVelocity(new Vector3(5f, 0f, 0f), n, -25f, 0f, 0.02f);
+        Assert.Greater(r.z, 0f);   // fall-line'a doğru momentum kazandı
+        Assert.Less(r.y, 0f);      // yüzey boyunca aşağı iniyor (sekmiyor)
+        Assert.AreEqual(5f, r.x, 0.01f); // yanal bileşen (sürtünme=0) korunuyor
     }
 
     [Test]
-    public void SlopeAccel_Downhill_IsPositive()
+    public void SlideVelocity_FlatGround_OnlyFrictionNoTurn()
     {
-        // 45° eğim, hareket yönü aşağı doğru → +12.5 m/s^2
-        Vector3 n = new Vector3(0f, 1f, 1f).normalized;
-        Assert.AreEqual(12.5f, MovementMath.SlopeAccel(n, Vector3.forward, -25f), 0.01f);
+        // Düz zemin: yön değişmez, yalnız sürtünme hızı azaltır.
+        Vector3 r = MovementMath.SlideVelocity(new Vector3(10f, 0f, 0f), Vector3.up, -25f, 8f, 0.02f);
+        Assert.AreEqual(0f, r.z, 0.0001f);
+        Assert.AreEqual(0f, r.y, 0.0001f);
+        Assert.AreEqual(10f - 8f * 0.02f, r.x, 0.001f); // 9.84
     }
 
     [Test]
-    public void SlopeAccel_Uphill_ClampedToZero()
+    public void SlideVelocity_StaysTangentToSlope()
     {
-        Vector3 n = new Vector3(0f, 1f, 1f).normalized;
-        Assert.AreEqual(0f, MovementMath.SlopeAccel(n, Vector3.back, -25f), 0.0001f);
+        // Çıkan hız daima eğim düzleminde (yüzeye teğet) → hop yok.
+        Vector3 n = new Vector3(0f, 2f, 1f).normalized;
+        Vector3 r = MovementMath.SlideVelocity(new Vector3(3f, 0f, 4f), n, -25f, 5f, 0.02f);
+        Assert.AreEqual(0f, Vector3.Dot(r, n), 0.001f);
     }
 
     [Test]

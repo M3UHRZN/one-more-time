@@ -13,13 +13,17 @@ namespace OneMoreTime
         public static float SlideStartSpeed(float currentSpeed, float runSpeed, float slideBoost)
             => Mathf.Max(currentSpeed, runSpeed) * slideBoost;
 
-        /// Eğim boyunca aşağı ivme (m/s^2). Düz / yokuş-yukarı yönde 0.
-        public static float SlopeAccel(Vector3 slopeNormal, Vector3 moveDir, float gravity)
+        /// Kayak fiziği: mevcut hızı eğim düzlemine izdüşür, yerçekiminin eğim-boyu
+        /// bileşenini VEKTÖR olarak ekler (hız fall-line'a kıvrılır), sonra sürtünme uygular.
+        /// Düz zeminde gAlong = 0 → yalnız sürtünme; yön korunur.
+        public static Vector3 SlideVelocity(Vector3 velocity, Vector3 groundNormal, float gravity, float friction, float dt)
         {
-            Vector3 g = new Vector3(0f, gravity, 0f);
-            Vector3 alongSlope = g - Vector3.Dot(g, slopeNormal) * slopeNormal;
-            float a = Vector3.Dot(alongSlope, moveDir.normalized);
-            return Mathf.Max(0f, a);
+            Vector3 planar = Vector3.ProjectOnPlane(velocity, groundNormal);
+            Vector3 gAlong = Vector3.ProjectOnPlane(new Vector3(0f, gravity, 0f), groundNormal);
+            Vector3 vNew = planar + gAlong * dt;
+            float sp = vNew.magnitude;
+            if (sp < 0.0001f) return Vector3.zero;
+            return vNew.normalized * Mathf.Max(0f, sp - friction * dt);
         }
 
         /// Zıplama: dikey hızı ata, yatay momentumu %100 koru (slide hop).

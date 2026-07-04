@@ -74,8 +74,8 @@ namespace OneMoreTime
             if (!_sliding && _grounded && crouchHeld && speed > config.runSpeed * 0.5f)
             {
                 float boosted = MovementMath.SlideStartSpeed(speed, config.runSpeed, config.slideBoost);
-                Vector3 dir0 = horiz.sqrMagnitude > 0.001f ? horiz.normalized : transform.forward;
-                horiz = dir0 * boosted;
+                Vector3 headDir = planarNow.sqrMagnitude > 0.001f ? planarNow.normalized : transform.forward;
+                v = headDir * boosted; // boost'lu başlangıç hızı, zemin düzleminde
                 _sliding = true;
             }
             else if (_sliding && (!crouchHeld || !_grounded || speed < config.slideMinSpeed))
@@ -83,14 +83,7 @@ namespace OneMoreTime
                 _sliding = false;
             }
 
-            if (_sliding)
-            {
-                Vector3 dir = horiz.sqrMagnitude > 0.001f ? horiz.normalized : transform.forward;
-                float slopeA = MovementMath.SlopeAccel(groundNormal, dir, config.gravity);
-                float newSpeed = horiz.magnitude + slopeA * dt - config.slideFriction * dt;
-                horiz = dir * Mathf.Max(0f, newSpeed);
-            }
-            else if (_grounded)
+            if (!_sliding && _grounded)
             {
                 float targetSpeed = sprintHeld ? config.sprintSpeed : config.runSpeed;
                 Vector3 target = wish * targetSpeed;
@@ -99,7 +92,12 @@ namespace OneMoreTime
             }
 
             Vector3 nextVel;
-            if (_grounded)
+            if (_sliding && _grounded)
+            {
+                // Yerçekiminin eğim-boyu bileşeni vektör olarak eklenir: hız fall-line'a kıvrılır.
+                nextVel = MovementMath.SlideVelocity(v, groundNormal, config.gravity, config.slideFriction, dt);
+            }
+            else if (_grounded)
             {
                 // Zemin düzlemine izdüşür: hareket eğimi takip etsin, sekmesin.
                 Vector3 groundDir = MovementMath.ProjectOnGround(horiz, groundNormal);
