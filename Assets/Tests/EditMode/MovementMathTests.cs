@@ -54,4 +54,30 @@ public class MovementMathTests
         Assert.AreEqual(8.37f, r.y, 0.0001f);
         Assert.AreEqual(0f, r.z, 0.0001f);
     }
+
+    [Test]
+    public void ProjectOnGround_FlatGround_UnchangedDirection()
+    {
+        Vector3 r = MovementMath.ProjectOnGround(Vector3.forward, Vector3.up);
+        Assert.AreEqual(Vector3.forward.x, r.x, 0.0001f);
+        Assert.AreEqual(Vector3.forward.y, r.y, 0.0001f);
+        Assert.AreEqual(Vector3.forward.z, r.z, 0.0001f);
+    }
+
+    [Test]
+    public void ProjectOnGround_DownhillSlope_TiltsDownwardAndStaysUnitLength()
+    {
+        // 45° eğim, düz "forward" hareket yönü aşağı-eğime yansıtılınca negatif Y almalı
+        Vector3 n = new Vector3(0f, 1f, 1f).normalized;
+        Vector3 r = MovementMath.ProjectOnGround(Vector3.forward, n);
+        Assert.Less(r.y, 0f);
+        Assert.AreEqual(1f, r.magnitude, 0.0001f);
+    }
+
+    [Test]
+    public void ProjectOnGround_ZeroInput_ReturnsZero()
+    {
+        Vector3 r = MovementMath.ProjectOnGround(Vector3.zero, Vector3.up);
+        Assert.AreEqual(Vector3.zero, r);
+    }
 }

@@ -25,5 +25,12 @@ namespace OneMoreTime
         /// Zıplama: dikey hızı ata, yatay momentumu %100 koru (slide hop).
         public static Vector3 ApplyJump(Vector3 velocity, float jumpVelocity)
             => new Vector3(velocity.x, jumpVelocity, velocity.z);
+
+        /// Hareket yönünü zemin düzlemine izdüşürür; yerde hareket eğimi takip eder.
+        public static Vector3 ProjectOnGround(Vector3 moveDir, Vector3 groundNormal)
+        {
+            Vector3 projected = Vector3.ProjectOnPlane(moveDir, groundNormal);
+            return projected.sqrMagnitude > 0.0001f ? projected.normalized : Vector3.zero;
+        }
     }
 }

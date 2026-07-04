@@ -38,7 +38,7 @@ namespace OneMoreTime
             _move = _playerMap.FindAction("Move", true);
             _jump = _playerMap.FindAction("Jump", true);
             _crouch = _playerMap.FindAction("Crouch", true);
-            _sprint = _playerMap.FindAction("Sprint", false);
+            _sprint = _playerMap.FindAction("Sprint", true);
             _jumpGate = new JumpGate(config.coyoteTime, config.jumpBuffer);
         }
 
@@ -64,7 +64,7 @@ namespace OneMoreTime
             Vector3 horiz = new Vector3(v.x, 0f, v.z);
             float speed = horiz.magnitude;
             bool crouchHeld = _crouch.IsPressed();
-            bool sprintHeld = _sprint != null && _sprint.IsPressed();
+            bool sprintHeld = _sprint.IsPressed();
 
             if (!_sliding && _grounded && crouchHeld && speed > config.runSpeed * 0.5f)
             {
@@ -93,18 +93,22 @@ namespace OneMoreTime
                 horiz = Vector3.MoveTowards(horiz, target, accel * dt);
             }
 
-            float vy = v.y;
-            if (_grounded && vy < 0f) vy = -2f;
+            Vector3 nextVel;
+            if (_grounded)
+            {
+                // Zemin düzlemine izdüşür: hareket eğimi takip etsin, sekmesin.
+                Vector3 groundDir = MovementMath.ProjectOnGround(horiz, groundNormal);
+                nextVel = groundDir * horiz.magnitude;
+            }
+            else
+            {
+                nextVel = new Vector3(horiz.x, v.y + config.gravity * dt, horiz.z);
+            }
 
-            Vector3 nextVel = new Vector3(horiz.x, vy, horiz.z);
             if (_jumpGate.TryConsumeJump())
             {
                 nextVel = MovementMath.ApplyJump(nextVel, MovementMath.JumpVelocity(config.jumpHeight, config.gravity));
                 _sliding = false;
-            }
-            else
-            {
-                nextVel.y += config.gravity * dt;
             }
 
             _rb.linearVelocity = nextVel;
