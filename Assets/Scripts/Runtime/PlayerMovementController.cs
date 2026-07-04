@@ -270,6 +270,28 @@ namespace OneMoreTime
             return false;
         }
 
+        void OnDrawGizmosSelected()
+        {
+            CapsuleCollider capsule = _capsule ? _capsule : GetComponent<CapsuleCollider>();
+            if (!capsule) return;
+
+            Vector3 center = transform.position + capsule.center;
+
+            float groundRadius = capsule.radius * 0.9f;
+            float groundDist = (capsule.height * 0.5f) - capsule.radius + config.groundProbe;
+            Gizmos.color = _grounded ? Color.green : Color.red;
+            Gizmos.DrawWireSphere(center, groundRadius);
+            Gizmos.DrawWireSphere(center + Vector3.down * groundDist, groundRadius);
+
+            float wallDist = capsule.radius + config.wallProbe;
+            Gizmos.color = _onWall ? Color.cyan : Color.yellow;
+            for (int i = 0; i < WallProbeLocalDirections.Length; i++)
+            {
+                Vector3 direction = transform.TransformDirection(WallProbeLocalDirections[i]);
+                Gizmos.DrawRay(center, direction * wallDist);
+            }
+        }
+
         bool ProbeWall(out Vector3 normal, out bool hasBlockedWallContact)
         {
             Vector3 center = transform.position + _capsule.center;
