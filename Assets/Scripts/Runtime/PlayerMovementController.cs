@@ -89,7 +89,10 @@ namespace OneMoreTime
             _onWall = !_grounded && ProbeWall(out probedWallNormal);
             if (_onWall) _wallNormal = probedWallNormal;
             _wallGate.Tick(dt, _onWall);
+            bool wallRunWasActive = _wallRun.IsActive;
             _wallRun.Tick(dt, _onWall, probedWallNormal);
+            bool wallRunExpiredThisTick = wallRunWasActive && !_wallRun.IsActive
+                && _wallRun.Elapsed >= config.wallRunDuration;
 
             Vector2 mv = _move.ReadValue<Vector2>();
             Vector3 wish = CameraRelative(mv);
@@ -158,7 +161,7 @@ namespace OneMoreTime
                 Vector3 groundDir = MovementMath.ProjectOnGround(horiz, groundNormal);
                 nextVel = groundDir * horiz.magnitude;
             }
-            else if (_wallRun.IsActive)
+            else if (_wallRun.IsActive || wallRunExpiredThisTick)
             {
                 nextVel = MovementMath.WallRunVelocity(
                     _wallRun.Direction,
@@ -176,15 +179,20 @@ namespace OneMoreTime
                 nextVel = new Vector3(horiz.x, v.y + config.gravity * dt, horiz.z);
             }
 
-            if (_jumpGate.TryConsumeJump())
+            MovementJumpSource jumpSource = MovementJumpResolver.Choose(
+                _wallRun.IsActive,
+                _jumpGate.CanConsumeJump,
+                (_wallRun.IsActive || _wallRun.CanEnter(_wallNormal))
+                    && _wallGate.CanConsumeJump);
+
+            if (jumpSource == MovementJumpSource.Ground && _jumpGate.TryConsumeJump())
             {
                 _wallGate.CancelPendingJump();
                 if (_wallRun.IsActive) _wallRun.Exit(false);
                 nextVel = MovementMath.ApplyJump(nextVel, MovementMath.JumpVelocity(config.jumpHeight, config.gravity));
                 _sliding = false;
             }
-            else if ((_wallRun.IsActive || _wallRun.CanEnter(_wallNormal))
-                && _wallGate.TryConsumeJump())
+            else if (jumpSource == MovementJumpSource.Wall && _wallGate.TryConsumeJump())
             {
                 _jumpGate.CancelPendingJump();
                 Vector3 jumpNormal = _wallRun.IsActive ? _wallRun.WallNormal : _wallNormal;
