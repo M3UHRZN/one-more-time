@@ -135,4 +135,53 @@ public class MovementMathTests
         Assert.AreEqual(9f, r.z, 0.0001f);
         Assert.AreEqual(7f, r.x, 0.0001f);
     }
+
+    [Test]
+    public void WallTangentDirection_AngledEntry_UsesVelocityProjection()
+    {
+        Vector3 r = MovementMath.WallTangentDirection(
+            new Vector3(10f, 0f, 6f), Vector3.zero, Vector3.forward, Vector3.right);
+        Assert.AreEqual(Vector3.forward, r);
+    }
+
+    [Test]
+    public void WallTangentDirection_HeadOnEntry_UsesWishDirection()
+    {
+        Vector3 r = MovementMath.WallTangentDirection(
+            Vector3.left * 10f, Vector3.forward, Vector3.back, Vector3.right);
+        Assert.AreEqual(Vector3.forward, r);
+    }
+
+    [Test]
+    public void WallTangentDirection_AmbiguousInput_UsesCameraRightFallback()
+    {
+        Vector3 r = MovementMath.WallTangentDirection(
+            Vector3.back * 10f, Vector3.zero, Vector3.right, Vector3.forward);
+        Assert.AreEqual(Vector3.right, r);
+    }
+
+    [Test]
+    public void WallRunVelocity_PreservesFullHorizontalSpeed()
+    {
+        Vector3 r = MovementMath.WallRunVelocity(
+            Vector3.forward, 14f, 4f, 0f, 2f, 3f);
+        Assert.AreEqual(14f, new Vector3(r.x, 0f, r.z).magnitude, 0.0001f);
+        Assert.AreEqual(4f, r.y, 0.0001f);
+    }
+
+    [Test]
+    public void WallRunVelocity_AtDuration_ReachesGentleFall()
+    {
+        Vector3 r = MovementMath.WallRunVelocity(
+            Vector3.forward, 8f, 0f, 2f, 2f, 3f);
+        Assert.AreEqual(-3f, r.y, 0.0001f);
+    }
+
+    [Test]
+    public void ShouldDetachFromWall_OnlyWhenWishPointsAwayPastThreshold()
+    {
+        Assert.IsTrue(MovementMath.ShouldDetachFromWall(Vector3.right, Vector3.right, 0.25f));
+        Assert.IsFalse(MovementMath.ShouldDetachFromWall(Vector3.forward, Vector3.right, 0.25f));
+        Assert.IsFalse(MovementMath.ShouldDetachFromWall(Vector3.zero, Vector3.right, 0.25f));
+    }
 }

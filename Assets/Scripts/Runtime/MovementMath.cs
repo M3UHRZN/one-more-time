@@ -38,6 +38,40 @@ namespace OneMoreTime
             return horizVel + wishDir * accel;
         }
 
+        /// Duvar boyunca kararlı yön: önce momentum, sonra input, son çare kamera sağı.
+        public static Vector3 WallTangentDirection(Vector3 horizontalVelocity, Vector3 wishDir,
+            Vector3 cameraRight, Vector3 wallNormal)
+        {
+            Vector3 n = new Vector3(wallNormal.x, 0f, wallNormal.z).normalized;
+            if (n == Vector3.zero) return Vector3.zero;
+
+            Vector3 source = Vector3.ProjectOnPlane(
+                new Vector3(horizontalVelocity.x, 0f, horizontalVelocity.z), n);
+            if (source.sqrMagnitude < 0.0001f)
+                source = Vector3.ProjectOnPlane(new Vector3(wishDir.x, 0f, wishDir.z), n);
+            if (source.sqrMagnitude < 0.0001f)
+                source = Vector3.ProjectOnPlane(new Vector3(cameraRight.x, 0f, cameraRight.z), n);
+            return source.sqrMagnitude > 0.0001f ? source.normalized : Vector3.zero;
+        }
+
+        /// Korunan yatay hız + iki saniye içinde nazik düşüşe geçen dikey hız.
+        public static Vector3 WallRunVelocity(Vector3 tangentDirection, float horizontalSpeed,
+            float entryVerticalSpeed, float elapsed, float duration, float endFallSpeed)
+        {
+            Vector3 tangent = new Vector3(tangentDirection.x, 0f, tangentDirection.z).normalized;
+            float t = duration > 0f ? Mathf.Clamp01(elapsed / duration) : 1f;
+            float vertical = Mathf.Lerp(Mathf.Max(0f, entryVerticalSpeed), -Mathf.Abs(endFallSpeed), t);
+            Vector3 horizontal = tangent * horizontalSpeed;
+            return new Vector3(horizontal.x, vertical, horizontal.z);
+        }
+
+        public static bool ShouldDetachFromWall(Vector3 wishDir, Vector3 wallNormal, float threshold)
+        {
+            if (wishDir.sqrMagnitude < 0.0001f) return false;
+            Vector3 n = new Vector3(wallNormal.x, 0f, wallNormal.z).normalized;
+            return n != Vector3.zero && Vector3.Dot(wishDir.normalized, n) > threshold;
+        }
+
         /// Duvar zıplaması: duvara paralel yatay momentum korunur, duvara dik bileşen
         /// itme hızıyla değiştirilir, dikey hız zıplama hızına ayarlanır.
         public static Vector3 WallJumpVelocity(Vector3 velocity, Vector3 wallNormal, float pushSpeed, float jumpVelocity)
