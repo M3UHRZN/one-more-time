@@ -27,7 +27,8 @@ namespace OneMoreTime
 
         public void CancelPendingJump() => _bufferTimer = 0f;
 
-        public bool CanConsumeJump => _bufferTimer > 0f && _coyoteTimer > 0f;
+        public bool HasBufferedJump => _bufferTimer > 0f;
+        public bool CanConsumeJump => HasBufferedJump && _coyoteTimer > 0f;
 
         public bool TryConsumeJump() => TryConsumeJump(false);
 
@@ -40,6 +41,13 @@ namespace OneMoreTime
                 return true;
             }
             return false;
+        }
+
+        public bool TryConsumeBufferedJump()
+        {
+            if (!HasBufferedJump) return false;
+            _bufferTimer = 0f;
+            return true;
         }
     }
 }

@@ -66,4 +66,16 @@ public class JumpGateTests
         g.Tick(0.02f, true);   // sonra iniş
         Assert.IsFalse(g.TryConsumeJump());
     }
+
+    [Test]
+    public void TryConsumeBufferedJump_DoesNotRequireCoyoteAndConsumesOnce()
+    {
+        var gate = new JumpGate(0.1f, 0.15f);
+        gate.PressJump();
+
+        Assert.IsTrue(gate.HasBufferedJump);
+        Assert.IsTrue(gate.TryConsumeBufferedJump());
+        Assert.IsFalse(gate.HasBufferedJump);
+        Assert.IsFalse(gate.TryConsumeBufferedJump());
+    }
 }

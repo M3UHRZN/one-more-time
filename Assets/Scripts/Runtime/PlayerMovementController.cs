@@ -200,7 +200,8 @@ namespace OneMoreTime
             MovementJumpSource jumpSource = MovementJumpResolver.Choose(
                 _wallRun.IsActive || wallJumpFromOwnedRun,
                 _jumpGate.CanConsumeJump,
-                wallJumpAvailable);
+                wallJumpAvailable,
+                false);
 
             if (jumpSource == MovementJumpSource.Ground && _jumpGate.TryConsumeJump())
             {
