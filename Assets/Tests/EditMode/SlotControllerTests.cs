@@ -48,6 +48,57 @@ public class SlotControllerTests
         Assert.IsFalse(slot.CanSpin);
     }
 
+    [Test]
+    public void Spin_NotThisTimeWithoutToken_RaisesRunLostEventOnce()
+    {
+        var playerGo = new GameObject("Player");
+        _createdObjects.Add(playerGo);
+        PlayerTokens tokens = playerGo.AddComponent<PlayerTokens>();
+        tokens.TrySpend(); // Count -> 0
+
+        var slotGo = new GameObject("Slot");
+        _createdObjects.Add(slotGo);
+        slotGo.SetActive(false);
+        SlotController slot = slotGo.AddComponent<SlotController>();
+        SetField(slot, "tokens", tokens);
+        SetField(slot, "_machine", new SlotMachine(() => 0.999f));
+        InvokeHandleRunFinished(slot, new RunResult(0f, 0, 8f));
+
+        int lostCount = 0;
+        slot.RunLost += () => lostCount++;
+
+        slot.Spin();
+
+        Assert.AreEqual(1, lostCount, "RunLost tam bir kez tetiklenmeli.");
+        Assert.IsTrue(slot.Lost);
+    }
+
+    [Test]
+    public void ClearAfterLoss_ResetsAllStateFlags()
+    {
+        var playerGo = new GameObject("Player");
+        _createdObjects.Add(playerGo);
+        PlayerTokens tokens = playerGo.AddComponent<PlayerTokens>();
+        tokens.TrySpend(); // Count -> 0
+
+        var slotGo = new GameObject("Slot");
+        _createdObjects.Add(slotGo);
+        slotGo.SetActive(false);
+        SlotController slot = slotGo.AddComponent<SlotController>();
+        SetField(slot, "tokens", tokens);
+        SetField(slot, "_machine", new SlotMachine(() => 0.999f));
+        InvokeHandleRunFinished(slot, new RunResult(0f, 0, 8f));
+        slot.Spin(); // gerçek kayıp: Lost=true, CanSpin=false, LastSpin set
+
+        slot.ClearAfterLoss();
+
+        Assert.IsFalse(slot.Won);
+        Assert.IsFalse(slot.Lost);
+        Assert.IsFalse(slot.CanSpin);
+        Assert.IsNull(slot.LastSpin);
+        Assert.IsFalse(slot.LastSpinForgiven);
+    }
+
     static void InvokeHandleRunFinished(SlotController slot, RunResult result)
     {
         typeof(SlotController)

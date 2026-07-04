@@ -25,6 +25,7 @@ namespace OneMoreTime
         public bool LastSpinForgiven { get; private set; }
 
         public event Action<SlotSpinResult> SpinResolved;
+        public event Action RunLost;
 
         void OnEnable() => run.RunFinished += HandleRunFinished;
         void OnDisable() => run.RunFinished -= HandleRunFinished;
@@ -72,10 +73,22 @@ namespace OneMoreTime
                     {
                         Lost = true;
                         CanSpin = false;
+                        RunLost?.Invoke();
                     }
                     break;
                 // OneMoreTime: CanSpin kalır, oyuncu tekrar çevirebilir.
             }
+        }
+
+        /// #11: kayıp resetlendiğinde stale HUD durumunu temizler. Yeni session
+        /// bir sonraki RunFinished'da HandleRunFinished ile zaten kurulacak.
+        public void ClearAfterLoss()
+        {
+            Won = false;
+            Lost = false;
+            CanSpin = false;
+            LastSpin = null;
+            LastSpinForgiven = false;
         }
     }
 }

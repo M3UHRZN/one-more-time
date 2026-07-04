@@ -50,6 +50,30 @@ public class PlayerRespawnerTests
         Assert.AreEqual(Vector3.zero, body.linearVelocity);
     }
 
+    [Test]
+    public void ResetToSpawn_TeleportsWithoutSpawningCorpse()
+    {
+        var player = new GameObject("Player");
+        _createdObjects.Add(player);
+        player.transform.position = new Vector3(5f, 1f, 3f);
+        Rigidbody body = player.AddComponent<Rigidbody>();
+        body.linearVelocity = new Vector3(4f, 0f, 0f);
+
+        var spawnPointGo = new GameObject("SpawnPoint");
+        _createdObjects.Add(spawnPointGo);
+        spawnPointGo.transform.position = new Vector3(0f, 0f, 0f);
+
+        PlayerRespawner respawner = player.AddComponent<PlayerRespawner>();
+        SetField(respawner, "body", body);
+        SetField(respawner, "spawnPoint", spawnPointGo.transform);
+
+        respawner.ResetToSpawn();
+
+        Assert.AreEqual(0, respawner.CorpseCount, "ResetToSpawn ceset spawn ETMEMELİ.");
+        Assert.AreEqual(spawnPointGo.transform.position, body.position);
+        Assert.AreEqual(Vector3.zero, body.linearVelocity);
+    }
+
     static T GetField<T>(PlayerRespawner respawner, string fieldName)
     {
         return (T)typeof(PlayerRespawner)

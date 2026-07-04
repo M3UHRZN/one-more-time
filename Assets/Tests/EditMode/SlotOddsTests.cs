@@ -37,12 +37,13 @@ public class SlotOddsTests
     }
 
     [Test]
-    public void From_PRightOutOfRange_ClampsToGddBounds()
+    public void From_PassesPRightThroughUnclamped()
     {
-        SlotOdds tooLow = SlotOdds.From(2f, 1);
-        SlotOdds tooHigh = SlotOdds.From(90f, 1);
+        // Sınırlar RunQuality/RunQualityConfig tarafında uygulanır; SlotOdds ham değeri aynen iletir.
+        SlotOdds low = SlotOdds.From(2f, 1);
+        SlotOdds high = SlotOdds.From(90f, 1);
 
-        Assert.AreEqual(8f, tooLow.Right, 0.0001f);
-        Assert.AreEqual(60f, tooHigh.Right, 0.0001f);
+        Assert.AreEqual(2f, low.Right, 0.0001f);
+        Assert.AreEqual(90f, high.Right, 0.0001f);
     }
 }
