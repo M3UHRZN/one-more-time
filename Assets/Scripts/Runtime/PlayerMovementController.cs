@@ -23,6 +23,10 @@ namespace OneMoreTime
         bool _grounded;
         bool _sliding;
 
+        /// Efekt katmanı için: yatay hız (FOV, hız çizgileri eşiği ~10 m/s hook'u).
+        public float HorizontalSpeed { get; private set; }
+        public bool IsSliding => _sliding;
+
         void Awake()
         {
             _rb = GetComponent<Rigidbody>();
@@ -118,6 +122,7 @@ namespace OneMoreTime
             }
 
             _rb.linearVelocity = nextVel;
+            HorizontalSpeed = new Vector3(nextVel.x, 0f, nextVel.z).magnitude;
         }
 
         Vector3 CameraRelative(Vector2 mv)

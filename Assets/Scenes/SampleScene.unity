@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 330585545}
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
+  - component: {fileID: 330585548}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -256,6 +257,24 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &330585548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330585543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62c2a8a341e53434f996a5e4ca3f7a11, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: OneMoreTime.Runtime::OneMoreTime.SpeedFovEffect
+  controller: {fileID: 424522377}
+  baseFov: 90
+  maxFov: 105
+  minSpeed: 8
+  maxSpeed: 18
+  smoothing: 6
 --- !u!1 &336792987
 GameObject:
   m_ObjectHideFlags: 0
@@ -630,6 +649,8 @@ MonoBehaviour:
     slideBoost: 1.4
     slideMinSpeed: 3
     slideFriction: 8
+    airAccel: 15
+    airSpeedCap: 1
     groundProbe: 0.15
   cameraTransform: {fileID: 330585546}
   groundMask:
@@ -718,6 +739,10 @@ MonoBehaviour:
   cameraTransform: {fileID: 330585546}
   lookSensitivity: 0.12
   pitchClamp: 85
+  controller: {fileID: 424522377}
+  slideEyeDrop: 0.7
+  slideTilt: 8
+  slideSmoothing: 12
 --- !u!1 &599355664
 GameObject:
   m_ObjectHideFlags: 0
