@@ -25,6 +25,7 @@ namespace OneMoreTime
         InputAction _move, _jump, _crouch, _sprint;
         JumpGate _jumpGate;
         JumpGate _wallGate;
+        DoubleJumpState _doubleJump;
         WallRunState _wallRun;
         Vector3 _lastHorizontalVelocity;
         Vector3 _wallNormal;
@@ -65,6 +66,7 @@ namespace OneMoreTime
             _sprint = _playerMap.FindAction("Sprint", true);
             _jumpGate = new JumpGate(config.coyoteTime, config.jumpBuffer);
             _wallGate = new JumpGate(config.coyoteTime, config.jumpBuffer);
+            _doubleJump = new DoubleJumpState();
             _wallRun = new WallRunState(config.wallRunDuration, config.coyoteTime, config.sameWallCooldown);
         }
 
@@ -88,6 +90,7 @@ namespace OneMoreTime
             Vector3 probedWallNormal = Vector3.zero;
             bool hasWallContact = ProbeWall(out probedWallNormal, out bool hasBlockedWallContact);
             _onWall = !_grounded && hasWallContact;
+            _doubleJump.ObserveContacts(_grounded, hasWallContact);
             if (_onWall) _wallNormal = probedWallNormal;
             bool wallJumpAvailableAtTickStart = _wallRun.IsActive && _wallGate.CanConsumeJump;
             _wallGate.Tick(dt, _onWall);
@@ -197,11 +200,14 @@ namespace OneMoreTime
             bool wallJumpAvailable = wallJumpFromOwnedRun
                 || ((_wallRun.IsActive || _wallRun.CanEnter(_wallNormal))
                     && _wallGate.CanConsumeJump);
+            bool doubleJumpAvailable = !_grounded
+                && _doubleJump.IsAvailable
+                && _jumpGate.HasBufferedJump;
             MovementJumpSource jumpSource = MovementJumpResolver.Choose(
                 _wallRun.IsActive || wallJumpFromOwnedRun,
                 _jumpGate.CanConsumeJump,
                 wallJumpAvailable,
-                false);
+                doubleJumpAvailable);
 
             if (jumpSource == MovementJumpSource.Ground && _jumpGate.TryConsumeJump())
             {
@@ -223,6 +229,15 @@ namespace OneMoreTime
                     _wallRun.LockWallAfterJump(jumpNormal);
                 nextVel = MovementMath.WallJumpVelocity(nextVel, jumpNormal,
                     config.wallJumpPush, MovementMath.JumpVelocity(config.jumpHeight, config.gravity));
+                _sliding = false;
+            }
+            else if (jumpSource == MovementJumpSource.Double
+                && _jumpGate.TryConsumeBufferedJump()
+                && _doubleJump.TryConsume())
+            {
+                _wallGate.CancelPendingJump();
+                nextVel = MovementMath.ApplyJump(nextVel,
+                    MovementMath.JumpVelocity(config.jumpHeight, config.gravity));
                 _sliding = false;
             }
 

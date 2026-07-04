@@ -137,6 +137,54 @@ public class PlayerMovementControllerTests
             "The contact-grace wall jump must start the same-wall cooldown.");
     }
 
+    [Test]
+    public void FixedUpdate_AirborneBufferedJump_ConsumesDoubleJumpOnce()
+    {
+        PlayerMovementController controller = CreateController(Vector3.zero);
+        JumpGate jumpGate = GetField<JumpGate>(controller, "_jumpGate");
+        JumpGate wallGate = GetField<JumpGate>(controller, "_wallGate");
+        DoubleJumpState doubleJump = GetField<DoubleJumpState>(controller, "_doubleJump");
+        jumpGate.PressJump();
+        wallGate.PressJump();
+
+        InvokeFixedUpdate(controller);
+
+        Assert.IsFalse(GetField<bool>(controller, "_grounded"));
+        Assert.IsFalse(GetField<bool>(controller, "_onWall"));
+        Assert.IsFalse(doubleJump.IsAvailable);
+        Assert.IsFalse(jumpGate.HasBufferedJump);
+        Assert.IsFalse(wallGate.HasBufferedJump);
+
+        jumpGate.PressJump();
+        wallGate.PressJump();
+        InvokeFixedUpdate(controller);
+
+        Assert.IsFalse(doubleJump.IsAvailable,
+            "A second airborne press cannot create another charge without contact.");
+        Assert.IsTrue(jumpGate.HasBufferedJump,
+            "An unavailable double jump must not consume the buffered press.");
+    }
+
+    [Test]
+    public void FixedUpdate_ContinuousWallContact_RefreshesOnlyOnEntry()
+    {
+        PlayerMovementController controller = CreateController(Vector3.zero);
+        CreateBox("DoubleJumpWall", new Vector3(0.65f, 0f, 0f), new Vector3(0.1f, 3f, 3f));
+        Physics.SyncTransforms();
+        DoubleJumpState doubleJump = GetField<DoubleJumpState>(controller, "_doubleJump");
+        doubleJump.TryConsume();
+        SetField(controller, "_lastHorizontalVelocity", Vector3.forward * 10f);
+
+        InvokeFixedUpdate(controller);
+        Assert.IsTrue(GetField<bool>(controller, "_onWall"));
+        Assert.IsTrue(doubleJump.TryConsume(), "Wall-contact entry must refresh the charge.");
+
+        InvokeFixedUpdate(controller);
+
+        Assert.IsFalse(doubleJump.IsAvailable,
+            "Continuous wall contact must not refresh the consumed charge again.");
+    }
+
     PlayerMovementController CreateController(Vector3 position)
     {
         Object projectInputAsset = AssetDatabase.LoadMainAssetAtPath("Assets/InputSystem_Actions.inputactions");
