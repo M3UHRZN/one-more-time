@@ -10,6 +10,7 @@ namespace OneMoreTime
     public class SlotController : MonoBehaviour
     {
         [SerializeField] RunController run;
+        [SerializeField] PlayerTokens tokens;
         [SerializeField] Key spinKey = Key.Enter;
 
         readonly SlotMachine _machine = new SlotMachine(() => UnityEngine.Random.value);
@@ -20,6 +21,8 @@ namespace OneMoreTime
         public SlotOdds CurrentOdds => _machine.CurrentOdds;
         public int SpinNumber => _machine.SpinNumber;
         public SlotSpinResult? LastSpin { get; private set; }
+        public int TokenCount => tokens ? tokens.Count : 0;
+        public bool LastSpinForgiven { get; private set; }
 
         public event Action<SlotSpinResult> SpinResolved;
 
@@ -40,6 +43,14 @@ namespace OneMoreTime
             if (!CanSpin) return;
             if (Keyboard.current == null || !Keyboard.current[spinKey].wasPressedThisFrame) return;
 
+            Spin();
+        }
+
+        public void Spin()
+        {
+            if (!CanSpin) return;
+
+            LastSpinForgiven = false;
             SlotSpinResult result = _machine.Spin();
             LastSpin = result;
             SpinResolved?.Invoke(result);
@@ -51,8 +62,17 @@ namespace OneMoreTime
                     CanSpin = false;
                     break;
                 case SlotOutcome.NotThisTime:
-                    Lost = true;
-                    CanSpin = false;
+                    // GDD §3.3: jeton varsa NOT THIS TIME affedilir — ONE MORE TIME gibi devam eder.
+                    if (tokens != null && tokens.TrySpend())
+                    {
+                        _machine.AdvanceSpin();
+                        LastSpinForgiven = true;
+                    }
+                    else
+                    {
+                        Lost = true;
+                        CanSpin = false;
+                    }
                     break;
                 // OneMoreTime: CanSpin kalır, oyuncu tekrar çevirebilir.
             }
