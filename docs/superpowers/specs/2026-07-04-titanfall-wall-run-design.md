@@ -20,7 +20,7 @@ Animations, weapon behavior, stamina, audio, particles, wall-run VFX, and a clas
 - Entry vertical speed is preserved when rising. A falling player is caught into a level run, then the run gradually trends toward a gentle fall by the end of its duration.
 - Pressing Jump preserves all wall-tangent speed and adds outward and upward velocity. Camera facing never replaces or reduces this momentum.
 - Moving away from the wall, pressing Crouch, losing the wall, reaching the two-second limit, or jumping ends the run.
-- After a wall jump, the same wall cannot be reacquired for `0.2` seconds. An opposing wall remains immediately available.
+- Every exit requires physical separation before the same wall can be reacquired, preventing an expired run from restarting while contact continues. After a wall jump, the same wall also has a `0.2` second timed lock. An opposing wall remains immediately available.
 - The first-person camera rolls `8` degrees toward the contacted wall and smoothly returns to level on exit.
 - The existing fall-speed clamp (`wallSlideMaxFall`) is removed. There is no sticky wall slide after the change.
 
@@ -40,7 +40,7 @@ A new pure C# `WallRunState` class owns only wall-run runtime data and transitio
 - chosen tangent direction;
 - preserved horizontal speed;
 - entry vertical speed;
-- last jumped wall normal and same-wall cooldown.
+- last exited wall normal, separation state, and wall-jump cooldown.
 
 It does not read input, perform physics queries, move a Rigidbody, or access scene objects. The controller supplies observations and consumes its state. When the full movement state machine is introduced later, this class can be wrapped or migrated into the shared state contract.
 
@@ -96,14 +96,14 @@ Normal air acceleration and gravity resume immediately after exit.
 
 The run ends when the first applicable condition occurs:
 
-1. Jump is consumed: apply wall jump and start the `0.2` second same-wall lock.
+1. Jump is consumed: apply wall jump, require separation from the exited wall, and start the additional `0.2` second same-wall lock.
 2. Crouch is pressed: detach into normal airborne movement.
 3. Wish direction points away from the wall with `dot(wishDirection, wallNormal) > 0.25`.
 4. Valid contact is absent beyond the existing `0.1` second coyote/contact grace.
 5. Elapsed wall-run time reaches `2.0` seconds.
 6. The player becomes grounded.
 
-Exiting for any reason clears wall-run camera roll. Only a wall jump starts the same-wall reacquisition lock.
+Exiting for any reason clears wall-run camera roll and blocks the exited wall until physical separation. Only a wall jump starts the additional timed `0.2` second lock.
 
 ## Wall Jump
 
@@ -150,7 +150,7 @@ EditMode TDD covers:
 - deterministic tangent selection for angled and head-on entry;
 - wall-run vertical progression;
 - two-second expiry;
-- same-wall cooldown rejection and opposite-wall acceptance;
+- same-wall separation/cooldown rejection and opposite-wall acceptance;
 - wall jump preserving tangent momentum while adding outward/upward velocity;
 - one press being consumed by only one jump path.
 
