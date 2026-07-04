@@ -16,7 +16,6 @@ namespace OneMoreTime
 
         Rigidbody _rb;
         CapsuleCollider _capsule;
-        PlayerInput _playerInput;
         InputActionMap _playerMap;
         InputAction _move, _jump, _crouch, _sprint;
         JumpGate _jumpGate;
@@ -28,16 +27,12 @@ namespace OneMoreTime
         {
             _rb = GetComponent<Rigidbody>();
             _capsule = GetComponent<CapsuleCollider>();
-            _playerInput = GetComponent<PlayerInput>();
             _rb.useGravity = false;
             _rb.freezeRotation = true;
             _rb.linearDamping = 0f;
             _rb.angularDamping = 0f;
             _rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
             _rb.interpolation = RigidbodyInterpolation.Interpolate;
-
-            inputAsset = ResolveInputAsset();
-            if (inputAsset == null) return;
 
             _playerMap = inputAsset.FindActionMap("Player", true);
             _move = _playerMap.FindAction("Move", true);
@@ -92,7 +87,7 @@ namespace OneMoreTime
             }
             else if (_grounded)
             {
-                float targetSpeed = sprintHeld ? config.runSpeed : config.walkSpeed;
+                float targetSpeed = sprintHeld ? config.sprintSpeed : config.runSpeed;
                 Vector3 target = wish * targetSpeed;
                 float accel = wish.sqrMagnitude > 0.01f ? config.groundAccel : config.groundFriction;
                 horiz = Vector3.MoveTowards(horiz, target, accel * dt);
@@ -146,17 +141,6 @@ namespace OneMoreTime
             }
             normal = Vector3.up;
             return false;
-        }
-
-        InputActionAsset ResolveInputAsset()
-        {
-            if (inputAsset != null) return inputAsset;
-            if (_playerInput != null && _playerInput.actions != null) return _playerInput.actions;
-            if (InputSystem.actions != null) return InputSystem.actions;
-
-            Debug.LogError("PlayerMovementController needs PlayerInput.actions, an InputActionAsset, or project-wide InputSystem.actions.");
-            enabled = false;
-            return null;
         }
     }
 }

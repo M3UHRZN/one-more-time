@@ -8,8 +8,8 @@ namespace OneMoreTime
     public class MovementConfig
     {
         [Header("Ground")]
-        public float walkSpeed = 4f;        // m/s
         public float runSpeed = 7f;         // m/s
+        public float sprintSpeed = 10f;     // m/s, faster gait — stamina system deferred
         public float groundAccel = 60f;     // m/s^2 (snappy)
         public float groundFriction = 40f;  // m/s^2
 
