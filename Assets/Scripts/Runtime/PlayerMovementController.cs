@@ -61,8 +61,13 @@ namespace OneMoreTime
             Vector3 wish = CameraRelative(mv);
 
             Vector3 v = _rb.linearVelocity;
-            Vector3 horiz = new Vector3(v.x, 0f, v.z);
-            float speed = horiz.magnitude;
+            // Zeminde iken gerçek hızı zemin düzleminden oku: sadece X/Z alırsak
+            // eğimdeki dikey bileşeni "kaybederiz" ve hız her tick'te sönümlenir (momentum bug).
+            Vector3 planarNow = _grounded ? Vector3.ProjectOnPlane(v, groundNormal) : new Vector3(v.x, 0f, v.z);
+            float speed = planarNow.magnitude;
+            Vector3 horiz = speed > 0.001f
+                ? new Vector3(planarNow.x, 0f, planarNow.z).normalized * speed
+                : Vector3.zero;
             bool crouchHeld = _crouch.IsPressed();
             bool sprintHeld = _sprint.IsPressed();
 
