@@ -29,9 +29,11 @@ namespace OneMoreTime
         public float airSpeedCap = 1f;   // m/s, istek yönü izdüşüm tavanı (strafe kazancı sınırı)
 
         [Header("Wall")]
-        public float wallProbe = 0.15f;        // m, kapsül yüzeyinden duvar arama mesafesi
-        public float wallSlideMaxFall = 3f;    // m/s, duvar kayarken düşüş hız tavanı
-        public float wallJumpPush = 7f;        // m/s, duvardan itme
+        public float wallProbe = 0.15f;          // m, kapsül yüzeyinden duvar arama mesafesi
+        public float wallRunDuration = 2f;       // s, tek temasın azami wall-run süresi
+        public float sameWallCooldown = 0.2f;    // s, wall-jump sonrası aynı duvara dönüş kilidi
+        public float wallRunEndFallSpeed = 3f;   // m/s, sürenin sonunda nazik düşüş
+        public float wallJumpPush = 7f;          // m/s, duvardan dışa itme
 
         [Header("Ground probe")]
         public float groundProbe = 0.15f;   // m (zemin yoklama payı)

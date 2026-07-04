@@ -9,6 +9,11 @@ namespace OneMoreTime
     [RequireComponent(typeof(CapsuleCollider))]
     public class PlayerMovementController : MonoBehaviour
     {
+        static readonly Vector3[] WallProbeLocalDirections =
+        {
+            Vector3.forward, Vector3.right, Vector3.back, Vector3.left
+        };
+
         [SerializeField] InputActionAsset inputAsset;
         [SerializeField] MovementConfig config = new MovementConfig();
         [SerializeField] Transform cameraTransform;
@@ -20,6 +25,8 @@ namespace OneMoreTime
         InputAction _move, _jump, _crouch, _sprint;
         JumpGate _jumpGate;
         JumpGate _wallGate;
+        WallRunState _wallRun;
+        Vector3 _lastHorizontalVelocity;
         Vector3 _wallNormal;
         bool _onWall;
 
@@ -29,6 +36,16 @@ namespace OneMoreTime
         /// Efekt katmanı için: yatay hız (FOV, hız çizgileri eşiği ~10 m/s hook'u).
         public float HorizontalSpeed { get; private set; }
         public bool IsSliding => _sliding;
+        public bool IsWallRunning => _wallRun != null && _wallRun.IsActive;
+        public float WallRunSide
+        {
+            get
+            {
+                if (!IsWallRunning) return 0f;
+                Vector3 right = cameraTransform ? cameraTransform.right : transform.right;
+                return Mathf.Sign(Vector3.Dot(_wallRun.WallNormal, right));
+            }
+        }
 
         void Awake()
         {
@@ -48,6 +65,7 @@ namespace OneMoreTime
             _sprint = _playerMap.FindAction("Sprint", true);
             _jumpGate = new JumpGate(config.coyoteTime, config.jumpBuffer);
             _wallGate = new JumpGate(config.coyoteTime, config.jumpBuffer);
+            _wallRun = new WallRunState(config.wallRunDuration, config.coyoteTime, config.sameWallCooldown);
         }
 
         void OnEnable() => _playerMap?.Enable();
@@ -67,10 +85,11 @@ namespace OneMoreTime
             float dt = Time.fixedDeltaTime;
             _grounded = ProbeGround(out Vector3 groundNormal);
             _jumpGate.Tick(dt, _grounded);
-            Vector3 wallNormal = Vector3.zero;
-            _onWall = !_grounded && ProbeWall(out wallNormal);
-            if (_onWall) _wallNormal = wallNormal;
+            Vector3 probedWallNormal = Vector3.zero;
+            _onWall = !_grounded && ProbeWall(out probedWallNormal);
+            if (_onWall) _wallNormal = probedWallNormal;
             _wallGate.Tick(dt, _onWall);
+            _wallRun.Tick(dt, _onWall, probedWallNormal);
 
             Vector2 mv = _move.ReadValue<Vector2>();
             Vector3 wish = CameraRelative(mv);
@@ -85,6 +104,27 @@ namespace OneMoreTime
                 : Vector3.zero;
             bool crouchHeld = _crouch.IsPressed();
             bool sprintHeld = _sprint.IsPressed();
+
+            if (_wallRun.IsActive
+                && (_grounded || crouchHeld
+                    || MovementMath.ShouldDetachFromWall(wish, _wallRun.WallNormal, 0.25f)))
+            {
+                _wallRun.Exit(false);
+            }
+
+            if (!_wallRun.IsActive && !_grounded && _onWall && !crouchHeld
+                && !MovementMath.ShouldDetachFromWall(wish, probedWallNormal, 0.25f)
+                && _wallRun.CanEnter(probedWallNormal))
+            {
+                Vector3 entryVelocity = _lastHorizontalVelocity.sqrMagnitude > 0.0001f
+                    ? _lastHorizontalVelocity
+                    : horiz;
+                float entrySpeed = Mathf.Max(entryVelocity.magnitude, horiz.magnitude);
+                Vector3 fallbackRight = cameraTransform ? cameraTransform.right : transform.right;
+                Vector3 direction = MovementMath.WallTangentDirection(
+                    entryVelocity, wish, fallbackRight, probedWallNormal);
+                _wallRun.TryEnter(probedWallNormal, direction, entrySpeed, v.y);
+            }
 
             if (!_sliding && _grounded && crouchHeld && speed > config.runSpeed * 0.5f)
             {
@@ -118,31 +158,47 @@ namespace OneMoreTime
                 Vector3 groundDir = MovementMath.ProjectOnGround(horiz, groundNormal);
                 nextVel = groundDir * horiz.magnitude;
             }
+            else if (_wallRun.IsActive)
+            {
+                nextVel = MovementMath.WallRunVelocity(
+                    _wallRun.Direction,
+                    _wallRun.HorizontalSpeed,
+                    _wallRun.EntryVerticalSpeed,
+                    _wallRun.Elapsed,
+                    config.wallRunDuration,
+                    config.wallRunEndFallSpeed);
+            }
             else
             {
                 Vector3 wishDir = wish.sqrMagnitude > 0.0001f ? wish.normalized : Vector3.zero;
                 horiz = MovementMath.AirAccelerate(horiz, wishDir, wish.magnitude * config.runSpeed,
                     config.airAccel, config.airSpeedCap, dt);
-                float vy = v.y + config.gravity * dt;
-                if (_onWall && vy < -config.wallSlideMaxFall) vy = -config.wallSlideMaxFall;
-                nextVel = new Vector3(horiz.x, vy, horiz.z);
+                nextVel = new Vector3(horiz.x, v.y + config.gravity * dt, horiz.z);
             }
 
             if (_jumpGate.TryConsumeJump())
             {
                 _wallGate.CancelPendingJump();
+                if (_wallRun.IsActive) _wallRun.Exit(false);
                 nextVel = MovementMath.ApplyJump(nextVel, MovementMath.JumpVelocity(config.jumpHeight, config.gravity));
                 _sliding = false;
             }
-            else if (_wallGate.TryConsumeJump())
+            else if ((_wallRun.IsActive || _wallRun.CanEnter(_wallNormal))
+                && _wallGate.TryConsumeJump())
             {
                 _jumpGate.CancelPendingJump();
-                nextVel = MovementMath.WallJumpVelocity(nextVel, _wallNormal,
+                Vector3 jumpNormal = _wallRun.IsActive ? _wallRun.WallNormal : _wallNormal;
+                if (_wallRun.IsActive)
+                    _wallRun.Exit(true);
+                else
+                    _wallRun.LockWallAfterJump(jumpNormal);
+                nextVel = MovementMath.WallJumpVelocity(nextVel, jumpNormal,
                     config.wallJumpPush, MovementMath.JumpVelocity(config.jumpHeight, config.gravity));
             }
 
             _rb.linearVelocity = nextVel;
-            HorizontalSpeed = new Vector3(nextVel.x, 0f, nextVel.z).magnitude;
+            _lastHorizontalVelocity = new Vector3(nextVel.x, 0f, nextVel.z);
+            HorizontalSpeed = _lastHorizontalVelocity.magnitude;
         }
 
         Vector3 CameraRelative(Vector2 mv)
@@ -171,13 +227,13 @@ namespace OneMoreTime
 
         bool ProbeWall(out Vector3 normal)
         {
-            // Gövde eksenlerinde 4 yatay yön: ileri, sağ, geri, sol.
             Vector3 center = transform.position + _capsule.center;
             float dist = _capsule.radius + config.wallProbe;
-            Vector3[] dirs = { transform.forward, transform.right, -transform.forward, -transform.right };
-            foreach (Vector3 d in dirs)
+            foreach (Vector3 localDirection in WallProbeLocalDirections)
             {
-                if (Physics.Raycast(center, d, out var hit, dist, groundMask, QueryTriggerInteraction.Ignore)
+                Vector3 direction = transform.TransformDirection(localDirection);
+                if (Physics.Raycast(center, direction, out var hit, dist,
+                        groundMask, QueryTriggerInteraction.Ignore)
                     && Mathf.Abs(hit.normal.y) < 0.3f)
                 {
                     normal = hit.normal;
