@@ -13,6 +13,10 @@ namespace OneMoreTime
         {
             Vector3.forward, Vector3.right, Vector3.back, Vector3.left
         };
+        /// Wall-run girişi yalnızca yan (right/left) temastan tetiklenir — ön/arka duvara
+        /// koşarken aniden yana kaymayı önler. Ön/arka yine de genel duvar teması sayılır
+        /// (wall-jump-off-any-wall, double-jump reset vb. için).
+        static readonly bool[] WallProbeIsSide = { false, true, false, true };
 
         [SerializeField] InputActionAsset inputAsset;
         [SerializeField] MovementConfig config = new MovementConfig();
@@ -88,7 +92,8 @@ namespace OneMoreTime
             _grounded = ProbeGround(out Vector3 groundNormal);
             _jumpGate.Tick(dt, _grounded);
             Vector3 probedWallNormal = Vector3.zero;
-            bool hasWallContact = ProbeWall(out probedWallNormal, out bool hasBlockedWallContact);
+            bool hasWallContact = ProbeWall(out probedWallNormal, out bool hasBlockedWallContact,
+                out bool hasEnterableWallContact);
             _onWall = !_grounded && hasWallContact;
             _doubleJump.ObserveContacts(_grounded, hasWallContact);
             if (_onWall) _wallNormal = probedWallNormal;
@@ -123,7 +128,8 @@ namespace OneMoreTime
                     _wallRun.IsActive, wallJumpFromOwnedRun, nonJumpWallRunExitRequested))
                 _wallRun.Exit(false);
 
-            if (!wallJumpFromOwnedRun && !_wallRun.IsActive && !_grounded && _onWall && !crouchHeld
+            if (!wallJumpFromOwnedRun && !_wallRun.IsActive && !_grounded && hasEnterableWallContact
+                && !crouchHeld
                 && !MovementMath.ShouldDetachFromWall(wish, probedWallNormal, 0.25f)
                 && _wallRun.CanEnter(probedWallNormal))
             {
@@ -292,7 +298,7 @@ namespace OneMoreTime
             }
         }
 
-        bool ProbeWall(out Vector3 normal, out bool hasBlockedWallContact)
+        bool ProbeWall(out Vector3 normal, out bool hasBlockedWallContact, out bool hasEnterableWallContact)
         {
             Vector3 center = transform.position + _capsule.center;
             float dist = _capsule.radius + config.wallProbe;
@@ -318,7 +324,7 @@ namespace OneMoreTime
                     if (activeNormal == Vector3.zero && _wallRun.MatchesActiveWall(hitNormal))
                         activeNormal = hitNormal;
                 }
-                else if (enterableNormal == Vector3.zero && _wallRun.CanEnter(hitNormal))
+                else if (enterableNormal == Vector3.zero && WallProbeIsSide[i] && _wallRun.CanEnter(hitNormal))
                 {
                     enterableNormal = hitNormal;
                 }
@@ -329,6 +335,7 @@ namespace OneMoreTime
                 : !_wallRun.IsActive && enterableNormal != Vector3.zero
                     ? enterableNormal
                     : firstNormal;
+            hasEnterableWallContact = enterableNormal != Vector3.zero;
             return firstNormal != Vector3.zero;
         }
     }

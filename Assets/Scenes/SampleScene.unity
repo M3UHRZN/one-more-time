@@ -26006,8 +26006,8 @@ MonoBehaviour:
   runQuality:
     timePenaltyPerSecondOverPar: 1
     corpsePenalty: 5
-    floor: 8
-    cap: 60
+    floor: 20
+    cap: 50
 --- !u!4 &1318511077
 Transform:
   m_ObjectHideFlags: 0
@@ -28701,7 +28701,7 @@ GameObject:
   - component: {fileID: 1769361079}
   - component: {fileID: 1769361078}
   - component: {fileID: 1769361077}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31201,6 +31201,14 @@ PrefabInstance:
       propertyPath: spawnPoint
       value: 
       objectReference: {fileID: 1898246435}
+    - target: {fileID: 3918078441632557795, guid: b1729e980a5de884cb9dc537e30d5594, type: 3}
+      propertyPath: spawnYOffset
+      value: 0.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 6564853248349531787, guid: b1729e980a5de884cb9dc537e30d5594, type: 3}
+      propertyPath: groundMask.m_Bits
+      value: 4294967295
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
