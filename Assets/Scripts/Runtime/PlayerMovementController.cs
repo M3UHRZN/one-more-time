@@ -105,6 +105,9 @@ namespace OneMoreTime
             }
             else
             {
+                Vector3 wishDir = wish.sqrMagnitude > 0.0001f ? wish.normalized : Vector3.zero;
+                horiz = MovementMath.AirAccelerate(horiz, wishDir, wish.magnitude * config.runSpeed,
+                    config.airAccel, config.airSpeedCap, dt);
                 nextVel = new Vector3(horiz.x, v.y + config.gravity * dt, horiz.z);
             }
 

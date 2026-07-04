@@ -89,4 +89,32 @@ public class MovementMathTests
         Vector3 r = MovementMath.ProjectOnGround(Vector3.zero, Vector3.up);
         Assert.AreEqual(Vector3.zero, r);
     }
+
+    [Test]
+    public void AirAccelerate_NoInput_Unchanged()
+    {
+        Vector3 v = new Vector3(10f, 0f, 0f);
+        Vector3 r = MovementMath.AirAccelerate(v, Vector3.zero, 0f, 15f, 1f, 0.02f);
+        Assert.AreEqual(v, r);
+    }
+
+    [Test]
+    public void AirAccelerate_PerpendicularStrafe_AddsSpeed()
+    {
+        // Quake özü: hıza dik istek yönünde izdüşüm 0 → cap'e kadar hız EKLENİR, toplam hız büyür.
+        Vector3 v = new Vector3(10f, 0f, 0f);
+        Vector3 r = MovementMath.AirAccelerate(v, Vector3.forward, 7f, 15f, 1f, 0.02f);
+        Assert.Greater(r.z, 0f);
+        Assert.Greater(r.magnitude, v.magnitude);
+    }
+
+    [Test]
+    public void AirAccelerate_AlongVelocity_NoGainPastCap()
+    {
+        // Hız yönünde istek: izdüşüm (10) zaten cap'in (1) üstünde → hiç ekleme yok.
+        Vector3 v = new Vector3(10f, 0f, 0f);
+        Vector3 r = MovementMath.AirAccelerate(v, Vector3.right, 7f, 15f, 1f, 0.02f);
+        Assert.AreEqual(10f, r.x, 0.0001f);
+        Assert.AreEqual(0f, r.z, 0.0001f);
+    }
 }

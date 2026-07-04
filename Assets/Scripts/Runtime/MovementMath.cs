@@ -26,6 +26,18 @@ namespace OneMoreTime
             return vNew.normalized * Mathf.Max(0f, sp - friction * dt);
         }
 
+        /// Quake air strafe: istek yönündeki hız izdüşümü cap'in altındaysa fark kadar hız ekler.
+        /// Dik strafe'te izdüşüm ~0 olduğundan dönerek sürekli hız kazanılır (momentum tutkalı).
+        public static Vector3 AirAccelerate(Vector3 horizVel, Vector3 wishDir, float wishSpeed, float airAccel, float airSpeedCap, float dt)
+        {
+            if (wishDir.sqrMagnitude < 0.0001f) return horizVel;
+            float current = Vector3.Dot(horizVel, wishDir);
+            float add = Mathf.Min(wishSpeed, airSpeedCap) - current;
+            if (add <= 0f) return horizVel;
+            float accel = Mathf.Min(airAccel * wishSpeed * dt, add);
+            return horizVel + wishDir * accel;
+        }
+
         /// Zıplama: dikey hızı ata, yatay momentumu %100 koru (slide hop).
         public static Vector3 ApplyJump(Vector3 velocity, float jumpVelocity)
             => new Vector3(velocity.x, jumpVelocity, velocity.z);

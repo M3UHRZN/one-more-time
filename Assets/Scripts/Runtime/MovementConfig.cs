@@ -24,6 +24,10 @@ namespace OneMoreTime
         public float slideMinSpeed = 3f;    // altına düşünce slide biter
         public float slideFriction = 8f;    // m/s^2 düz zemin slide sönümü
 
+        [Header("Air")]
+        public float airAccel = 15f;     // hava ivme çarpanı (Quake sv_airaccelerate dengi)
+        public float airSpeedCap = 1f;   // m/s, istek yönü izdüşüm tavanı (strafe kazancı sınırı)
+
         [Header("Ground probe")]
         public float groundProbe = 0.15f;   // m (zemin yoklama payı)
     }
