@@ -115,8 +115,6 @@ namespace OneMoreTime
             }
 
             _rb.linearVelocity = nextVel;
-
-            if (!_sliding) FaceMoveDirection(wish, dt);
         }
 
         Vector3 CameraRelative(Vector2 mv)
@@ -126,13 +124,6 @@ namespace OneMoreTime
             f.y = 0f; r.y = 0f;
             Vector3 wish = f.normalized * mv.y + r.normalized * mv.x;
             return Vector3.ClampMagnitude(wish, 1f);
-        }
-
-        void FaceMoveDirection(Vector3 wish, float dt)
-        {
-            if (wish.sqrMagnitude < 0.01f) return;
-            Quaternion target = Quaternion.LookRotation(wish, Vector3.up);
-            _rb.MoveRotation(Quaternion.RotateTowards(_rb.rotation, target, config.turnSpeed * dt));
         }
 
         bool ProbeGround(out Vector3 normal)

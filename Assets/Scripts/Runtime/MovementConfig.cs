@@ -24,8 +24,7 @@ namespace OneMoreTime
         public float slideMinSpeed = 3f;    // altına düşünce slide biter
         public float slideFriction = 8f;    // m/s^2 düz zemin slide sönümü
 
-        [Header("Facing / Ground probe")]
-        public float turnSpeed = 720f;      // deg/s (TPS yönelme)
+        [Header("Ground probe")]
         public float groundProbe = 0.15f;   // m (zemin yoklama payı)
     }
 }
