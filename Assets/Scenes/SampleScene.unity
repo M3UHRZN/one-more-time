@@ -25967,6 +25967,7 @@ GameObject:
   - component: {fileID: 1318511075}
   - component: {fileID: 1318511079}
   - component: {fileID: 1318511078}
+  - component: {fileID: 1318511080}
   m_Layer: 0
   m_Name: gamemanager
   m_TagString: Untagged
@@ -26002,6 +26003,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: OneMoreTime.Runtime::OneMoreTime.RunController
   player: {fileID: 424522382}
   parTime: 1
+  runQuality:
+    timePenaltyPerSecondOverPar: 1
+    corpsePenalty: 5
+    floor: 8
+    cap: 60
 --- !u!4 &1318511077
 Transform:
   m_ObjectHideFlags: 0
@@ -26045,6 +26051,23 @@ MonoBehaviour:
   run: {fileID: 1318511076}
   tokens: {fileID: 1897957474}
   spinKey: 19
+--- !u!114 &1318511080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1318511074}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a0df4fb4eb371e49a4d3c2a02527ebc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: OneMoreTime.Runtime::OneMoreTime.LossFlowController
+  slot: {fileID: 1318511079}
+  player: {fileID: 424522382}
+  tokens: {fileID: 1897957474}
+  run: {fileID: 1318511076}
+  continueKey: 1
 --- !u!43 &1373848379
 Mesh:
   m_ObjectHideFlags: 0
