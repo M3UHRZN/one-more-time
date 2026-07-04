@@ -67,7 +67,9 @@ namespace OneMoreTime
             float dt = Time.fixedDeltaTime;
             _grounded = ProbeGround(out Vector3 groundNormal);
             _jumpGate.Tick(dt, _grounded);
-            _onWall = !_grounded && ProbeWall(out _wallNormal);
+            Vector3 wallNormal = Vector3.zero;
+            _onWall = !_grounded && ProbeWall(out wallNormal);
+            if (_onWall) _wallNormal = wallNormal;
             _wallGate.Tick(dt, _onWall);
 
             Vector2 mv = _move.ReadValue<Vector2>();
@@ -128,11 +130,13 @@ namespace OneMoreTime
 
             if (_jumpGate.TryConsumeJump())
             {
+                _wallGate.CancelPendingJump();
                 nextVel = MovementMath.ApplyJump(nextVel, MovementMath.JumpVelocity(config.jumpHeight, config.gravity));
                 _sliding = false;
             }
             else if (_wallGate.TryConsumeJump())
             {
+                _jumpGate.CancelPendingJump();
                 nextVel = MovementMath.WallJumpVelocity(nextVel, _wallNormal,
                     config.wallJumpPush, MovementMath.JumpVelocity(config.jumpHeight, config.gravity));
             }

@@ -15,12 +15,15 @@ public class JumpGateTests
     [Test]
     public void SinglePress_JumpsOnlyOnce()
     {
-        var g = new JumpGate(0.1f, 0.15f);
-        g.Tick(0.02f, true);
-        g.PressJump();
-        Assert.IsTrue(g.TryConsumeJump());
-        // aynı grounded karede yeni basış yok → ikinci tüketim başarısız
-        Assert.IsFalse(g.TryConsumeJump());
+        var ground = new JumpGate(0.1f, 0.15f);
+        var wall = new JumpGate(0.1f, 0.15f);
+        ground.Tick(0.02f, true);
+        ground.PressJump();
+        wall.PressJump();
+        Assert.IsTrue(ground.TryConsumeJump());
+        wall.CancelPendingJump();
+        wall.Tick(0.02f, true);
+        Assert.IsFalse(wall.TryConsumeJump());
     }
 
     [Test]

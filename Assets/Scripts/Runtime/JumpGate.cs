@@ -25,6 +25,8 @@ namespace OneMoreTime
 
         public void PressJump() => _bufferTimer = _bufferTime;
 
+        public void CancelPendingJump() => _bufferTimer = 0f;
+
         public bool TryConsumeJump()
         {
             if (_bufferTimer > 0f && _coyoteTimer > 0f)
