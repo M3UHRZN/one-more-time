@@ -16,8 +16,9 @@ namespace OneMoreTime
 
         Rigidbody _rb;
         CapsuleCollider _capsule;
+        PlayerInput _playerInput;
         InputActionMap _playerMap;
-        InputAction _move, _jump, _crouch;
+        InputAction _move, _jump, _crouch, _sprint;
         JumpGate _jumpGate;
 
         bool _grounded;
@@ -27,6 +28,7 @@ namespace OneMoreTime
         {
             _rb = GetComponent<Rigidbody>();
             _capsule = GetComponent<CapsuleCollider>();
+            _playerInput = GetComponent<PlayerInput>();
             _rb.useGravity = false;
             _rb.freezeRotation = true;
             _rb.linearDamping = 0f;
@@ -34,10 +36,14 @@ namespace OneMoreTime
             _rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
             _rb.interpolation = RigidbodyInterpolation.Interpolate;
 
+            inputAsset = ResolveInputAsset();
+            if (inputAsset == null) return;
+
             _playerMap = inputAsset.FindActionMap("Player", true);
             _move = _playerMap.FindAction("Move", true);
             _jump = _playerMap.FindAction("Jump", true);
             _crouch = _playerMap.FindAction("Crouch", true);
+            _sprint = _playerMap.FindAction("Sprint", false);
             _jumpGate = new JumpGate(config.coyoteTime, config.jumpBuffer);
         }
 
@@ -63,6 +69,7 @@ namespace OneMoreTime
             Vector3 horiz = new Vector3(v.x, 0f, v.z);
             float speed = horiz.magnitude;
             bool crouchHeld = _crouch.IsPressed();
+            bool sprintHeld = _sprint != null && _sprint.IsPressed();
 
             if (!_sliding && _grounded && crouchHeld && speed > config.runSpeed * 0.5f)
             {
@@ -85,7 +92,8 @@ namespace OneMoreTime
             }
             else if (_grounded)
             {
-                Vector3 target = wish * config.runSpeed;
+                float targetSpeed = sprintHeld ? config.runSpeed : config.walkSpeed;
+                Vector3 target = wish * targetSpeed;
                 float accel = wish.sqrMagnitude > 0.01f ? config.groundAccel : config.groundFriction;
                 horiz = Vector3.MoveTowards(horiz, target, accel * dt);
             }
@@ -138,6 +146,17 @@ namespace OneMoreTime
             }
             normal = Vector3.up;
             return false;
+        }
+
+        InputActionAsset ResolveInputAsset()
+        {
+            if (inputAsset != null) return inputAsset;
+            if (_playerInput != null && _playerInput.actions != null) return _playerInput.actions;
+            if (InputSystem.actions != null) return InputSystem.actions;
+
+            Debug.LogError("PlayerMovementController needs PlayerInput.actions, an InputActionAsset, or project-wide InputSystem.actions.");
+            enabled = false;
+            return null;
         }
     }
 }
