@@ -860,7 +860,7 @@ MonoBehaviour:
   slideEyeDrop: 0.7
   slideTilt: 8
   slideSmoothing: 12
-  wallRunTilt: 8
+  wallRunTilt: -8
 --- !u!1 &599355664
 GameObject:
   m_ObjectHideFlags: 0
