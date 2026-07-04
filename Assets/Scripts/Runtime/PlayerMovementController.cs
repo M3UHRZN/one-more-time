@@ -22,6 +22,7 @@ namespace OneMoreTime
         [SerializeField] MovementConfig config = new MovementConfig();
         [SerializeField] Transform cameraTransform;
         [SerializeField] LayerMask groundMask = ~0;
+        [SerializeField] LayerMask wallMask = ~0;
 
         Rigidbody _rb;
         CapsuleCollider _capsule;
@@ -311,7 +312,7 @@ namespace OneMoreTime
             {
                 Vector3 direction = transform.TransformDirection(WallProbeLocalDirections[i]);
                 if (!Physics.Raycast(center, direction, out var hit, dist,
-                        groundMask, QueryTriggerInteraction.Ignore)
+                        wallMask, QueryTriggerInteraction.Ignore)
                     || Mathf.Abs(hit.normal.y) >= 0.3f)
                     continue;
 
