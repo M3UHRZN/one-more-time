@@ -40,6 +40,16 @@ namespace OneMoreTime
                 || Vector3.Dot(n, _cooldownWallNormal) < SameWallDot;
         }
 
+        public bool MatchesActiveWall(Vector3 wallNormal)
+        {
+            return IsActive && MatchesWall(wallNormal, WallNormal);
+        }
+
+        public bool MatchesBlockedWall(Vector3 wallNormal)
+        {
+            return _requiresSeparation && MatchesWall(wallNormal, _blockedWallNormal);
+        }
+
         public bool TryEnter(Vector3 wallNormal, Vector3 direction, float horizontalSpeed, float entryVerticalSpeed)
         {
             Vector3 n = HorizontalNormal(wallNormal);
@@ -59,15 +69,18 @@ namespace OneMoreTime
 
         public void Tick(float dt, bool hasWallContact, Vector3 contactNormal)
         {
+            Tick(dt, hasWallContact, contactNormal,
+                hasWallContact && MatchesBlockedWall(contactNormal));
+        }
+
+        public void Tick(float dt, bool hasWallContact, Vector3 contactNormal,
+            bool hasBlockedWallContact)
+        {
             _sameWallCooldownRemaining = Mathf.Max(0f, _sameWallCooldownRemaining - dt);
             Vector3 contact = HorizontalNormal(contactNormal);
 
-            if (_requiresSeparation
-                && (!hasWallContact || contact == Vector3.zero
-                    || Vector3.Dot(contact, _blockedWallNormal) < SameWallDot))
-            {
+            if (_requiresSeparation && !hasBlockedWallContact)
                 _requiresSeparation = false;
-            }
 
             if (!IsActive) return;
 
@@ -115,6 +128,12 @@ namespace OneMoreTime
         {
             Vector3 n = new Vector3(normal.x, 0f, normal.z);
             return n.sqrMagnitude > 0.0001f ? n.normalized : Vector3.zero;
+        }
+
+        static bool MatchesWall(Vector3 wallNormal, Vector3 targetNormal)
+        {
+            Vector3 n = HorizontalNormal(wallNormal);
+            return n != Vector3.zero && Vector3.Dot(n, targetNormal) >= SameWallDot;
         }
     }
 }

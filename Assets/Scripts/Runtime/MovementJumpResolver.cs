@@ -12,5 +12,11 @@ namespace OneMoreTime
             if (wallAvailable) return MovementJumpSource.Wall;
             return MovementJumpSource.None;
         }
+
+        public static bool ShouldExitWallRunBeforeJump(bool wallRunActive,
+            bool wallJumpAvailable, bool nonJumpExitRequested)
+        {
+            return wallRunActive && nonJumpExitRequested && !wallJumpAvailable;
+        }
     }
 }

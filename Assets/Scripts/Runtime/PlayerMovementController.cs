@@ -86,12 +86,15 @@ namespace OneMoreTime
             _grounded = ProbeGround(out Vector3 groundNormal);
             _jumpGate.Tick(dt, _grounded);
             Vector3 probedWallNormal = Vector3.zero;
-            _onWall = !_grounded && ProbeWall(out probedWallNormal);
+            bool hasWallContact = ProbeWall(out probedWallNormal, out bool hasBlockedWallContact);
+            _onWall = !_grounded && hasWallContact;
             if (_onWall) _wallNormal = probedWallNormal;
             _wallGate.Tick(dt, _onWall);
-            bool wallRunWasActive = _wallRun.IsActive;
-            _wallRun.Tick(dt, _onWall, probedWallNormal);
-            bool wallRunExpiredThisTick = wallRunWasActive && !_wallRun.IsActive
+            bool wallRunOwnedTick = _wallRun.IsActive;
+            bool wallJumpFromOwnedRun = wallRunOwnedTick && _wallGate.CanConsumeJump;
+            Vector3 ownedWallNormal = wallRunOwnedTick ? _wallRun.WallNormal : Vector3.zero;
+            _wallRun.Tick(dt, _onWall, probedWallNormal, hasBlockedWallContact);
+            bool wallRunExpiredThisTick = wallRunOwnedTick && !_wallRun.IsActive
                 && _wallRun.Elapsed >= config.wallRunDuration;
 
             Vector2 mv = _move.ReadValue<Vector2>();
@@ -108,14 +111,14 @@ namespace OneMoreTime
             bool crouchHeld = _crouch.IsPressed();
             bool sprintHeld = _sprint.IsPressed();
 
-            if (_wallRun.IsActive
+            bool nonJumpWallRunExitRequested = _wallRun.IsActive
                 && (_grounded || crouchHeld
-                    || MovementMath.ShouldDetachFromWall(wish, _wallRun.WallNormal, 0.25f)))
-            {
+                    || MovementMath.ShouldDetachFromWall(wish, _wallRun.WallNormal, 0.25f));
+            if (MovementJumpResolver.ShouldExitWallRunBeforeJump(
+                    _wallRun.IsActive, wallJumpFromOwnedRun, nonJumpWallRunExitRequested))
                 _wallRun.Exit(false);
-            }
 
-            if (!_wallRun.IsActive && !_grounded && _onWall && !crouchHeld
+            if (!wallJumpFromOwnedRun && !_wallRun.IsActive && !_grounded && _onWall && !crouchHeld
                 && !MovementMath.ShouldDetachFromWall(wish, probedWallNormal, 0.25f)
                 && _wallRun.CanEnter(probedWallNormal))
             {
@@ -150,7 +153,17 @@ namespace OneMoreTime
             }
 
             Vector3 nextVel;
-            if (_sliding && _grounded)
+            if (wallJumpFromOwnedRun)
+            {
+                nextVel = MovementMath.WallRunVelocity(
+                    _wallRun.Direction,
+                    _wallRun.HorizontalSpeed,
+                    _wallRun.EntryVerticalSpeed,
+                    _wallRun.Elapsed,
+                    config.wallRunDuration,
+                    config.wallRunEndFallSpeed);
+            }
+            else if (_sliding && _grounded)
             {
                 // Yerçekiminin eğim-boyu bileşeni vektör olarak eklenir: hız fall-line'a kıvrılır.
                 nextVel = MovementMath.SlideVelocity(v, groundNormal, config.gravity, config.slideFriction, dt);
@@ -179,11 +192,13 @@ namespace OneMoreTime
                 nextVel = new Vector3(horiz.x, v.y + config.gravity * dt, horiz.z);
             }
 
-            MovementJumpSource jumpSource = MovementJumpResolver.Choose(
-                _wallRun.IsActive,
-                _jumpGate.CanConsumeJump,
-                (_wallRun.IsActive || _wallRun.CanEnter(_wallNormal))
+            bool wallJumpAvailable = wallJumpFromOwnedRun
+                || ((_wallRun.IsActive || _wallRun.CanEnter(_wallNormal))
                     && _wallGate.CanConsumeJump);
+            MovementJumpSource jumpSource = MovementJumpResolver.Choose(
+                _wallRun.IsActive || wallJumpFromOwnedRun,
+                _jumpGate.CanConsumeJump,
+                wallJumpAvailable);
 
             if (jumpSource == MovementJumpSource.Ground && _jumpGate.TryConsumeJump())
             {
@@ -195,13 +210,16 @@ namespace OneMoreTime
             else if (jumpSource == MovementJumpSource.Wall && _wallGate.TryConsumeJump())
             {
                 _jumpGate.CancelPendingJump();
-                Vector3 jumpNormal = _wallRun.IsActive ? _wallRun.WallNormal : _wallNormal;
+                Vector3 jumpNormal = wallJumpFromOwnedRun
+                    ? ownedWallNormal
+                    : _wallRun.IsActive ? _wallRun.WallNormal : _wallNormal;
                 if (_wallRun.IsActive)
                     _wallRun.Exit(true);
                 else
                     _wallRun.LockWallAfterJump(jumpNormal);
                 nextVel = MovementMath.WallJumpVelocity(nextVel, jumpNormal,
                     config.wallJumpPush, MovementMath.JumpVelocity(config.jumpHeight, config.gravity));
+                _sliding = false;
             }
 
             _rb.linearVelocity = nextVel;
@@ -233,23 +251,44 @@ namespace OneMoreTime
             return false;
         }
 
-        bool ProbeWall(out Vector3 normal)
+        bool ProbeWall(out Vector3 normal, out bool hasBlockedWallContact)
         {
             Vector3 center = transform.position + _capsule.center;
             float dist = _capsule.radius + config.wallProbe;
-            foreach (Vector3 localDirection in WallProbeLocalDirections)
+            Vector3 firstNormal = Vector3.zero;
+            Vector3 activeNormal = Vector3.zero;
+            Vector3 enterableNormal = Vector3.zero;
+            hasBlockedWallContact = false;
+
+            for (int i = 0; i < WallProbeLocalDirections.Length; i++)
             {
-                Vector3 direction = transform.TransformDirection(localDirection);
-                if (Physics.Raycast(center, direction, out var hit, dist,
+                Vector3 direction = transform.TransformDirection(WallProbeLocalDirections[i]);
+                if (!Physics.Raycast(center, direction, out var hit, dist,
                         groundMask, QueryTriggerInteraction.Ignore)
-                    && Mathf.Abs(hit.normal.y) < 0.3f)
+                    || Mathf.Abs(hit.normal.y) >= 0.3f)
+                    continue;
+
+                Vector3 hitNormal = hit.normal;
+                if (firstNormal == Vector3.zero) firstNormal = hitNormal;
+                if (_wallRun.MatchesBlockedWall(hitNormal)) hasBlockedWallContact = true;
+
+                if (_wallRun.IsActive)
                 {
-                    normal = hit.normal;
-                    return true;
+                    if (activeNormal == Vector3.zero && _wallRun.MatchesActiveWall(hitNormal))
+                        activeNormal = hitNormal;
+                }
+                else if (enterableNormal == Vector3.zero && _wallRun.CanEnter(hitNormal))
+                {
+                    enterableNormal = hitNormal;
                 }
             }
-            normal = Vector3.zero;
-            return false;
+
+            normal = _wallRun.IsActive && activeNormal != Vector3.zero
+                ? activeNormal
+                : !_wallRun.IsActive && enterableNormal != Vector3.zero
+                    ? enterableNormal
+                    : firstNormal;
+            return firstNormal != Vector3.zero;
         }
     }
 }

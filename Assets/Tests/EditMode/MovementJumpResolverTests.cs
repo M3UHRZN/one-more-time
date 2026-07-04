@@ -4,6 +4,13 @@ using OneMoreTime;
 public class MovementJumpResolverTests
 {
     [Test]
+    public void ActiveWallJump_DefersSimultaneousNonJumpExit()
+    {
+        Assert.IsFalse(MovementJumpResolver.ShouldExitWallRunBeforeJump(true, true, true),
+            "A consumable active wall jump must defer a simultaneous grounded/crouch/away exit.");
+    }
+
+    [Test]
     public void ActiveWallRun_PrioritizesWallOverGroundCoyote()
     {
         Assert.AreEqual(MovementJumpSource.Wall,
