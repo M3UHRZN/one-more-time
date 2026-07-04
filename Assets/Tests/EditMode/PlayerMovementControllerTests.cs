@@ -185,6 +185,44 @@ public class PlayerMovementControllerTests
             "Continuous wall contact must not refresh the consumed charge again.");
     }
 
+    [Test]
+    public void FixedUpdate_ClimbingSlope_KeepsVelocityPressedIntoGround()
+    {
+        const float slopeAngle = 35f;
+        Vector3 fixtureOrigin = new Vector3(1000f, 1000f, 1000f);
+        Quaternion slopeRotation = Quaternion.Euler(slopeAngle, 0f, 0f);
+        Vector3 groundNormal = slopeRotation * Vector3.up;
+        Vector3 surfacePoint = fixtureOrigin + slopeRotation * (Vector3.up * 0.5f);
+        Vector3 capsuleCenter = surfacePoint + groundNormal * 0.5f;
+
+        PlayerMovementController controller = CreateController(capsuleCenter - Vector3.up);
+        controller.GetComponent<CapsuleCollider>().center = Vector3.up;
+        CreateBox("Slope", fixtureOrigin, new Vector3(20f, 1f, 20f), slopeRotation);
+        controller.gameObject.SetActive(true);
+        Physics.SyncTransforms();
+
+        Rigidbody body = controller.GetComponent<Rigidbody>();
+        body.linearVelocity = (slopeRotation * Vector3.back) * 10f;
+        Assert.Greater(body.linearVelocity.y, 0f, "Fixture must start with uphill velocity.");
+
+        object[] probeArgs = { Vector3.zero };
+        bool probeGrounded = (bool)typeof(PlayerMovementController)
+            .GetMethod("ProbeGround", BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(controller, probeArgs);
+        Assert.IsTrue(probeGrounded, "Fixture ground probe must hit the slope.");
+        Assert.Greater(Vector3.Dot((Vector3)probeArgs[0], groundNormal), 0.99f,
+            "Fixture ground probe must read the slope normal.");
+
+        InvokeFixedUpdate(controller);
+
+        Assert.IsTrue(GetField<bool>(controller, "_grounded"),
+            "Fixture must be grounded on the 35 degree slope.");
+        Assert.Greater(body.linearVelocity.y, 0f,
+            "Uphill movement must retain its upward component.");
+        Assert.Less(Vector3.Dot(body.linearVelocity, groundNormal), -0.1f,
+            "Grounded velocity needs a small into-ground component so the dynamic body does not lose slope contact.");
+    }
+
     PlayerMovementController CreateController(Vector3 position)
     {
         Object projectInputAsset = AssetDatabase.LoadMainAssetAtPath("Assets/InputSystem_Actions.inputactions");
@@ -203,10 +241,14 @@ public class PlayerMovementControllerTests
     }
 
     void CreateBox(string name, Vector3 position, Vector3 size)
+        => CreateBox(name, position, size, Quaternion.identity);
+
+    void CreateBox(string name, Vector3 position, Vector3 size, Quaternion rotation)
     {
         var box = new GameObject(name);
         _createdObjects.Add(box);
         box.transform.position = position;
+        box.transform.rotation = rotation;
         box.AddComponent<BoxCollider>().size = size;
     }
 

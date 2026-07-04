@@ -37,5 +37,11 @@ namespace OneMoreTime
 
         [Header("Ground probe")]
         public float groundProbe = 0.15f;   // m (zemin yoklama payı)
+
+        [Header("Step-up")]
+        public float stepHeight = 0.3f;        // m, aşılabilir engel üst yüksekliği (ayak hizasından)
+        public float stepForwardProbe = 0.1f;  // m, kapsül yarıçapı ötesinde ileri arama payı
+        public float stepClimbSpeed = 4f;      // m/s, yumuşak tırmanış dikey hızı
+        public float stepMinSpeed = 1.5f;      // m/s, tetikleme için asgari yatay hız
     }
 }
