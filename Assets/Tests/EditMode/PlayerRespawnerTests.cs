@@ -1,0 +1,66 @@
+using System.Collections.Generic;
+using System.Reflection;
+using NUnit.Framework;
+using OneMoreTime;
+using UnityEngine;
+
+public class PlayerRespawnerTests
+{
+    readonly List<Object> _createdObjects = new List<Object>();
+
+    [TearDown]
+    public void TearDown()
+    {
+        for (int i = _createdObjects.Count - 1; i >= 0; i--)
+            if (_createdObjects[i]) Object.DestroyImmediate(_createdObjects[i]);
+
+        _createdObjects.Clear();
+    }
+
+    [Test]
+    public void Kill_SpawnsCorpseAtDeathPositionAndTeleportsPlayerToSpawn()
+    {
+        var player = new GameObject("Player");
+        _createdObjects.Add(player);
+        player.transform.position = new Vector3(5f, 1f, 3f);
+        Rigidbody body = player.AddComponent<Rigidbody>();
+        body.linearVelocity = new Vector3(4f, 0f, 0f);
+
+        var spawnPointGo = new GameObject("SpawnPoint");
+        _createdObjects.Add(spawnPointGo);
+        spawnPointGo.transform.position = new Vector3(0f, 0f, 0f);
+
+        var corpsePrefab = new GameObject("CorpsePrefab");
+        _createdObjects.Add(corpsePrefab);
+
+        PlayerRespawner respawner = player.AddComponent<PlayerRespawner>();
+        SetField(respawner, "body", body);
+        SetField(respawner, "spawnPoint", spawnPointGo.transform);
+        SetField(respawner, "corpsePrefab", corpsePrefab);
+
+        Vector3 deathPosition = body.position;
+        respawner.Kill();
+
+        Assert.AreEqual(1, respawner.CorpseCount);
+        GameObject spawnedCorpse = GetField<CorpseRegistry>(respawner, "_registry").Corpses[0];
+        _createdObjects.Add(spawnedCorpse);
+        Assert.AreEqual(deathPosition, spawnedCorpse.transform.position);
+
+        Assert.AreEqual(spawnPointGo.transform.position, body.position);
+        Assert.AreEqual(Vector3.zero, body.linearVelocity);
+    }
+
+    static T GetField<T>(PlayerRespawner respawner, string fieldName)
+    {
+        return (T)typeof(PlayerRespawner)
+            .GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic)
+            .GetValue(respawner);
+    }
+
+    static void SetField(PlayerRespawner respawner, string fieldName, object value)
+    {
+        typeof(PlayerRespawner)
+            .GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic)
+            .SetValue(respawner, value);
+    }
+}
