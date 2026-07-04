@@ -117,4 +117,22 @@ public class MovementMathTests
         Assert.AreEqual(10f, r.x, 0.0001f);
         Assert.AreEqual(0f, r.z, 0.0001f);
     }
+
+    [Test]
+    public void WallJumpVelocity_PushesAwayFromWallAndUp()
+    {
+        // Duvar normali +X: sonuç +X itme ve jumpVelocity dikey hız içermeli.
+        Vector3 r = MovementMath.WallJumpVelocity(new Vector3(0f, -5f, 0f), Vector3.right, 7f, 8.37f);
+        Assert.AreEqual(7f, r.x, 0.0001f);
+        Assert.AreEqual(8.37f, r.y, 0.0001f);
+    }
+
+    [Test]
+    public void WallJumpVelocity_PreservesTangentMomentum()
+    {
+        // Duvara paralel (Z) momentum korunur — Titanfall duvar zıplaması hızı öldürmez.
+        Vector3 r = MovementMath.WallJumpVelocity(new Vector3(-2f, -3f, 9f), Vector3.right, 7f, 8.37f);
+        Assert.AreEqual(9f, r.z, 0.0001f);
+        Assert.AreEqual(7f, r.x, 0.0001f);
+    }
 }

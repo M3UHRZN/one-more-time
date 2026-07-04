@@ -19,6 +19,9 @@ namespace OneMoreTime
         InputActionMap _playerMap;
         InputAction _move, _jump, _crouch, _sprint;
         JumpGate _jumpGate;
+        JumpGate _wallGate;
+        Vector3 _wallNormal;
+        bool _onWall;
 
         bool _grounded;
         bool _sliding;
@@ -44,6 +47,7 @@ namespace OneMoreTime
             _crouch = _playerMap.FindAction("Crouch", true);
             _sprint = _playerMap.FindAction("Sprint", true);
             _jumpGate = new JumpGate(config.coyoteTime, config.jumpBuffer);
+            _wallGate = new JumpGate(config.coyoteTime, config.jumpBuffer);
         }
 
         void OnEnable() => _playerMap?.Enable();
@@ -52,7 +56,10 @@ namespace OneMoreTime
         void Update()
         {
             if (_jump.WasPressedThisFrame())
+            {
                 _jumpGate.PressJump();
+                _wallGate.PressJump();
+            }
         }
 
         void FixedUpdate()
@@ -60,6 +67,8 @@ namespace OneMoreTime
             float dt = Time.fixedDeltaTime;
             _grounded = ProbeGround(out Vector3 groundNormal);
             _jumpGate.Tick(dt, _grounded);
+            _onWall = !_grounded && ProbeWall(out _wallNormal);
+            _wallGate.Tick(dt, _onWall);
 
             Vector2 mv = _move.ReadValue<Vector2>();
             Vector3 wish = CameraRelative(mv);
@@ -112,13 +121,20 @@ namespace OneMoreTime
                 Vector3 wishDir = wish.sqrMagnitude > 0.0001f ? wish.normalized : Vector3.zero;
                 horiz = MovementMath.AirAccelerate(horiz, wishDir, wish.magnitude * config.runSpeed,
                     config.airAccel, config.airSpeedCap, dt);
-                nextVel = new Vector3(horiz.x, v.y + config.gravity * dt, horiz.z);
+                float vy = v.y + config.gravity * dt;
+                if (_onWall && vy < -config.wallSlideMaxFall) vy = -config.wallSlideMaxFall;
+                nextVel = new Vector3(horiz.x, vy, horiz.z);
             }
 
             if (_jumpGate.TryConsumeJump())
             {
                 nextVel = MovementMath.ApplyJump(nextVel, MovementMath.JumpVelocity(config.jumpHeight, config.gravity));
                 _sliding = false;
+            }
+            else if (_wallGate.TryConsumeJump())
+            {
+                nextVel = MovementMath.WallJumpVelocity(nextVel, _wallNormal,
+                    config.wallJumpPush, MovementMath.JumpVelocity(config.jumpHeight, config.gravity));
             }
 
             _rb.linearVelocity = nextVel;
@@ -146,6 +162,25 @@ namespace OneMoreTime
                 return true;
             }
             normal = Vector3.up;
+            return false;
+        }
+
+        bool ProbeWall(out Vector3 normal)
+        {
+            // Gövde eksenlerinde 4 yatay yön: ileri, sağ, geri, sol.
+            Vector3 center = transform.position + _capsule.center;
+            float dist = _capsule.radius + config.wallProbe;
+            Vector3[] dirs = { transform.forward, transform.right, -transform.forward, -transform.right };
+            foreach (Vector3 d in dirs)
+            {
+                if (Physics.Raycast(center, d, out var hit, dist, groundMask, QueryTriggerInteraction.Ignore)
+                    && Mathf.Abs(hit.normal.y) < 0.3f)
+                {
+                    normal = hit.normal;
+                    return true;
+                }
+            }
+            normal = Vector3.zero;
             return false;
         }
     }

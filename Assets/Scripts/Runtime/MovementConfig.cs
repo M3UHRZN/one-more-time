@@ -28,6 +28,11 @@ namespace OneMoreTime
         public float airAccel = 15f;     // hava ivme çarpanı (Quake sv_airaccelerate dengi)
         public float airSpeedCap = 1f;   // m/s, istek yönü izdüşüm tavanı (strafe kazancı sınırı)
 
+        [Header("Wall")]
+        public float wallProbe = 0.15f;        // m, kapsül yüzeyinden duvar arama mesafesi
+        public float wallSlideMaxFall = 3f;    // m/s, duvar kayarken düşüş hız tavanı
+        public float wallJumpPush = 7f;        // m/s, duvardan itme
+
         [Header("Ground probe")]
         public float groundProbe = 0.15f;   // m (zemin yoklama payı)
     }

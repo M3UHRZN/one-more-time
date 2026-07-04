@@ -38,6 +38,17 @@ namespace OneMoreTime
             return horizVel + wishDir * accel;
         }
 
+        /// Duvar zıplaması: duvara paralel yatay momentum korunur, duvara dik bileşen
+        /// itme hızıyla değiştirilir, dikey hız zıplama hızına ayarlanır.
+        public static Vector3 WallJumpVelocity(Vector3 velocity, Vector3 wallNormal, float pushSpeed, float jumpVelocity)
+        {
+            Vector3 n = new Vector3(wallNormal.x, 0f, wallNormal.z).normalized;
+            Vector3 horiz = new Vector3(velocity.x, 0f, velocity.z);
+            Vector3 tangent = Vector3.ProjectOnPlane(horiz, n);
+            Vector3 result = tangent + n * pushSpeed;
+            return new Vector3(result.x, jumpVelocity, result.z);
+        }
+
         /// Zıplama: dikey hızı ata, yatay momentumu %100 koru (slide hop).
         public static Vector3 ApplyJump(Vector3 velocity, float jumpVelocity)
             => new Vector3(velocity.x, jumpVelocity, velocity.z);
