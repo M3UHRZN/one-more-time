@@ -53,7 +53,8 @@ public class RunControllerTests
         Assert.IsTrue(run.HasFinished);
         Assert.AreEqual(45f, run.LastResult.Seconds, 0.0001f);
         Assert.AreEqual(2, run.LastResult.Corpses);
-        Assert.AreEqual(RunQuality.RightOnTimeChance(45f, 2), run.LastResult.RightChance, 0.0001f);
+        // Varsayılan parTime=60, seconds=45 → overPar=0; 2 ceset × 5 ceza = 60-10 = 50.
+        Assert.AreEqual(50f, run.LastResult.RightChance, 0.0001f);
         Assert.AreEqual(1, fireCount);
         Assert.AreEqual(run.LastResult.Seconds, received.Seconds, 0.0001f);
         Assert.IsFalse(run.IsRunning, "Finish must stop the timer.");

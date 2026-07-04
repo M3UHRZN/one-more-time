@@ -35,6 +35,14 @@ namespace OneMoreTime
             GameObject corpse = Instantiate(corpsePrefab, deathPosition, Quaternion.identity);
             _registry.Register(corpse);
 
+            TeleportToSpawn();
+        }
+
+        /// Kayıpta (NOT THIS TIME, jetonsuz) bölüm başına dönüş — ceset SPAWN ETMEZ.
+        public void ResetToSpawn() => TeleportToSpawn();
+
+        void TeleportToSpawn()
+        {
             body.position = spawnPoint.position;
             body.linearVelocity = Vector3.zero;
         }

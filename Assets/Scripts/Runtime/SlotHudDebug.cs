@@ -29,9 +29,14 @@ namespace OneMoreTime
             }
 
             if (slot.Won)
+            {
                 GUI.Label(new Rect(10, 198, 300, 24), "RIGHT ON TIME — WIN");
+            }
             else if (slot.Lost)
+            {
                 GUI.Label(new Rect(10, 198, 300, 24), "NOT THIS TIME — LOSS");
+                GUI.Label(new Rect(10, 220, 300, 24), "[Enter] devam et");
+            }
         }
     }
 }

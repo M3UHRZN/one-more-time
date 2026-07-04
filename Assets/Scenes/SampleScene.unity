@@ -26001,7 +26001,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: OneMoreTime.Runtime::OneMoreTime.RunController
   player: {fileID: 424522382}
-  parTime: 60
+  parTime: 1
 --- !u!4 &1318511077
 Transform:
   m_ObjectHideFlags: 0

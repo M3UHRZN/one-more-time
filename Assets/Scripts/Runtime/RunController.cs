@@ -9,6 +9,7 @@ namespace OneMoreTime
     {
         [SerializeField] PlayerRespawner player;
         [SerializeField] float parTime = 60f;
+        [SerializeField] RunQualityConfig runQuality = new RunQualityConfig();
 
         readonly RunTimer _timer = new RunTimer();
 
@@ -38,7 +39,7 @@ namespace OneMoreTime
             _timer.Stop();
             float seconds = _timer.Elapsed;
             int corpses = player.CorpseCount;
-            float rightChance = RunQuality.RightOnTimeChance(seconds, corpses);
+            float rightChance = RunQuality.RightOnTimeChance(seconds, corpses, parTime, runQuality);
             LastResult = new RunResult(seconds, corpses, rightChance);
             HasFinished = true;
             RunFinished?.Invoke(LastResult);
