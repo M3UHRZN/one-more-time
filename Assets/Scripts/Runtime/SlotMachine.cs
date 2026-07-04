@@ -18,6 +18,9 @@ namespace OneMoreTime
         public int SpinNumber { get; private set; } = 1;
         public SlotOdds CurrentOdds => SlotOdds.From(_pRight, SpinNumber);
 
+        /// Jeton affı (#10) ONE MORE TIME gibi çevirme sayısını ilerletir — "artan kıyamet" korunur.
+        public void AdvanceSpin() => SpinNumber++;
+
         public void BeginSession(float pRightLocked)
         {
             _pRight = pRightLocked;
@@ -31,7 +34,7 @@ namespace OneMoreTime
             var result = new SlotSpinResult(outcome, odds, SpinNumber);
 
             if (outcome == SlotOutcome.OneMoreTime)
-                SpinNumber++;
+                AdvanceSpin();
 
             return result;
         }

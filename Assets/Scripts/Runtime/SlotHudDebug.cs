@@ -9,6 +9,8 @@ namespace OneMoreTime
 
         void OnGUI()
         {
+            GUI.Label(new Rect(10, 88, 300, 24), $"Jeton: {slot.TokenCount}");
+
             if (slot.CanSpin)
             {
                 SlotOdds odds = slot.CurrentOdds;
@@ -19,7 +21,12 @@ namespace OneMoreTime
             }
 
             if (slot.LastSpin.HasValue)
-                GUI.Label(new Rect(10, 176, 300, 24), $"Son sonuç: {slot.LastSpin.Value.Outcome}");
+            {
+                if (slot.LastSpin.Value.Outcome == SlotOutcome.NotThisTime && slot.LastSpinForgiven)
+                    GUI.Label(new Rect(10, 176, 300, 24), $"JETON YANDI (kalan: {slot.TokenCount})");
+                else
+                    GUI.Label(new Rect(10, 176, 300, 24), $"Son sonuç: {slot.LastSpin.Value.Outcome}");
+            }
 
             if (slot.Won)
                 GUI.Label(new Rect(10, 198, 300, 24), "RIGHT ON TIME — WIN");
