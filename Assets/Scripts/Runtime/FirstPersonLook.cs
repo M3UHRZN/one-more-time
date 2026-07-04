@@ -16,6 +16,7 @@ namespace OneMoreTime
         [SerializeField] float slideEyeDrop = 0.7f;   // m, slide'da göz alçalması
         [SerializeField] float slideTilt = 8f;        // derece, roll
         [SerializeField] float slideSmoothing = 12f;  // 1/sn
+        [SerializeField] float wallRunTilt = 8f;    // derece, temas edilen duvara doğru roll
 
         InputActionMap _playerMap;
         InputAction _look;
@@ -52,8 +53,11 @@ namespace OneMoreTime
 
             transform.rotation = Quaternion.Euler(0f, _yaw, 0f);
             bool sliding = controller && controller.IsSliding;
+            bool wallRunning = controller && controller.IsWallRunning;
             float targetY = sliding ? _eyeHeight - slideEyeDrop : _eyeHeight;
-            float targetRoll = sliding ? slideTilt : 0f;
+            float targetRoll = sliding
+                ? slideTilt
+                : wallRunning ? controller.WallRunSide * wallRunTilt : 0f;
             float k = slideSmoothing * Time.deltaTime;
             Vector3 lp = cameraTransform.localPosition;
             lp.y = Mathf.Lerp(lp.y, targetY, k);

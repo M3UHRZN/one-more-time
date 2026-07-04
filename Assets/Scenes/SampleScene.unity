@@ -764,7 +764,9 @@ MonoBehaviour:
     airAccel: 15
     airSpeedCap: 1
     wallProbe: 0.15
-    wallSlideMaxFall: 3
+    wallRunDuration: 2
+    sameWallCooldown: 0.2
+    wallRunEndFallSpeed: 3
     wallJumpPush: 7
     groundProbe: 0.15
   cameraTransform: {fileID: 330585546}
@@ -858,6 +860,7 @@ MonoBehaviour:
   slideEyeDrop: 0.7
   slideTilt: 8
   slideSmoothing: 12
+  wallRunTilt: 8
 --- !u!1 &599355664
 GameObject:
   m_ObjectHideFlags: 0
