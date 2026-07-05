@@ -17,23 +17,14 @@ namespace OneMoreTime
         static readonly int JumpParam = Animator.StringToHash("Jump");
         static readonly int WallJumpParam = Animator.StringToHash("WallJump");
         static readonly int DoubleJumpParam = Animator.StringToHash("DoubleJump");
-        static readonly int LandParam = Animator.StringToHash("Land");
 
         Animator _animator;
 
         void Awake() => _animator = GetComponent<Animator>();
 
-        void OnEnable()
-        {
-            movement.Landed += HandleLanded;
-            movement.Jumped += HandleJumped;
-        }
+        void OnEnable() => movement.Jumped += HandleJumped;
 
-        void OnDisable()
-        {
-            movement.Landed -= HandleLanded;
-            movement.Jumped -= HandleJumped;
-        }
+        void OnDisable() => movement.Jumped -= HandleJumped;
 
         void Update()
         {
@@ -43,8 +34,6 @@ namespace OneMoreTime
             _animator.SetBool(WallRunningParam, movement.IsWallRunning);
             _animator.SetFloat(WallRunSideParam, movement.WallRunSide);
         }
-
-        void HandleLanded() => _animator.SetTrigger(LandParam);
 
         void HandleJumped(MovementJumpSource source)
         {

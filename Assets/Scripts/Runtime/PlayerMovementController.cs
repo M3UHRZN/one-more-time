@@ -49,8 +49,7 @@ namespace OneMoreTime
         public bool IsWallRunning => _wallRun != null && _wallRun.IsActive;
         public bool IsGrounded => _grounded;
 
-        /// Animator köprüsü (#karakter animasyonu) için: yere iniş anı ve zıplama kaynağı.
-        public event Action Landed;
+        /// Animator köprüsü (#karakter animasyonu) için: zıplama kaynağı.
         public event Action<MovementJumpSource> Jumped;
         public float WallRunSide
         {
@@ -99,9 +98,7 @@ namespace OneMoreTime
         void FixedUpdate()
         {
             float dt = Time.fixedDeltaTime;
-            bool wasGrounded = _grounded;
             _grounded = ProbeGround(out Vector3 groundNormal);
-            if (_grounded && !wasGrounded) Landed?.Invoke();
             _jumpGate.Tick(dt, _grounded);
             Vector3 probedWallNormal = Vector3.zero;
             bool hasWallContact = ProbeWall(out probedWallNormal, out bool hasBlockedWallContact,
