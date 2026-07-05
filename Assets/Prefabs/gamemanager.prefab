@@ -1,0 +1,117 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4295392990891541015
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8344502480102694969}
+  - component: {fileID: 3481217858608603798}
+  - component: {fileID: 2794913094879123630}
+  - component: {fileID: 1761946504687696008}
+  - component: {fileID: 3400475262715206044}
+  - component: {fileID: 2331395160426469872}
+  m_Layer: 0
+  m_Name: gamemanager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8344502480102694969
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4295392990891541015}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 5.32395, y: 20.71542, z: -30.76232}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3481217858608603798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4295392990891541015}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 685788c534845d34e9446a426f1e3f89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: OneMoreTime.Runtime::OneMoreTime.RunController
+  player: {fileID: 0}
+  parTime: 1
+  runQuality:
+    timePenaltyPerSecondOverPar: 1
+    corpsePenalty: 5
+    floor: 1
+    cap: 70
+--- !u!114 &2794913094879123630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4295392990891541015}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a14879a39568c62428501baef82c1be9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: OneMoreTime.Runtime::OneMoreTime.RunHudDebug
+  run: {fileID: 3481217858608603798}
+  player: {fileID: 0}
+--- !u!114 &1761946504687696008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4295392990891541015}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 891a5d7e34a93e041b0f99c429ae18de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: OneMoreTime.Runtime::OneMoreTime.SlotController
+  run: {fileID: 3481217858608603798}
+  tokens: {fileID: 0}
+  spinKey: 19
+--- !u!114 &3400475262715206044
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4295392990891541015}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87ca83aa7ec01d24e80c799fb1d3752c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: OneMoreTime.Runtime::OneMoreTime.SlotHudDebug
+  slot: {fileID: 1761946504687696008}
+--- !u!114 &2331395160426469872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4295392990891541015}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a0df4fb4eb371e49a4d3c2a02527ebc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: OneMoreTime.Runtime::OneMoreTime.LossFlowController
+  slot: {fileID: 1761946504687696008}
+  player: {fileID: 0}
+  tokens: {fileID: 0}
+  run: {fileID: 3481217858608603798}
+  interaction: {fileID: 0}
+  continueKey: 1

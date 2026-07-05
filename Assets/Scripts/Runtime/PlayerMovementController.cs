@@ -59,9 +59,9 @@ namespace OneMoreTime
 
         public void SetControlEnabled(bool enabled)
         {
-            ControlEnabled = enabled;
-            _rb.isKinematic = !enabled;
             if (!enabled) _rb.linearVelocity = Vector3.zero;
+            _rb.isKinematic = !enabled;
+            ControlEnabled = enabled;
         }
         public float WallRunSide
         {

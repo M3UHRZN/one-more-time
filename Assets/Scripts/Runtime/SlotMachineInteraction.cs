@@ -156,5 +156,14 @@ namespace OneMoreTime
             cameraTransform.SetPositionAndRotation(targetPos, targetRot);
             onComplete?.Invoke();
         }
+
+        void OnDrawGizmosSelected()
+        {
+            if (!viewpoint) return;
+
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(viewpoint.position, 0.15f);
+            Gizmos.DrawLine(viewpoint.position, viewpoint.position + viewpoint.forward);
+        }
     }
 }
