@@ -48,7 +48,7 @@ MonoBehaviour:
   bindings:
   - cue: 1
     clips:
-    - {fileID: 8300000, guid: 4a031141115992d41b786bdc449dc098, type: 3}
+    - {fileID: 8300000, guid: 2a8f6e3db164ba34895ff0e45b70d19a, type: 3}
     source: {fileID: 6140511612857633872}
     useWorldPosition: 0
     volume: 1
@@ -70,7 +70,7 @@ MonoBehaviour:
     pitchRandomRange: 0
   - cue: 4
     clips:
-    - {fileID: 8300000, guid: c77af429bbc033549a19516875411400, type: 3}
+    - {fileID: 0}
     source: {fileID: 6140511612857633872}
     useWorldPosition: 0
     volume: 1
@@ -78,20 +78,20 @@ MonoBehaviour:
   - cue: 5
     clips:
     - {fileID: 8300000, guid: c77af429bbc033549a19516875411400, type: 3}
-    source: {fileID: 6140511612857633872}
+    source: {fileID: 0}
     useWorldPosition: 0
     volume: 1
     pitchRandomRange: 0
   - cue: 6
     clips:
-    - {fileID: 8300000, guid: c77af429bbc033549a19516875411400, type: 3}
+    - {fileID: 0}
     source: {fileID: 6140511612857633872}
     useWorldPosition: 0
     volume: 1
     pitchRandomRange: 0
   - cue: 7
     clips:
-    - {fileID: 0}
+    - {fileID: 8300000, guid: b0a9c7ee26ecacd47a9924f46683098c, type: 3}
     source: {fileID: 6140511612857633872}
     useWorldPosition: 0
     volume: 1
