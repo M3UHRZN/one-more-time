@@ -12,20 +12,21 @@ public class SlotOddsTests
     }
 
     [Test]
-    public void From_SixthSpin_NotClampsToCeiling()
+    public void From_SixthSpin_NotKeepsRisingPastOldCeiling()
     {
-        // 5 + (6-1)*4 = 25 → tam tavanda
+        // 5 + (6-1)*4 = 25 — tavan yok, artmaya devam eder.
         SlotOdds odds = SlotOdds.From(50f, 6);
 
         Assert.AreEqual(25f, odds.Not, 0.0001f);
     }
 
     [Test]
-    public void From_TenthSpin_NotStaysClampedAtCeiling()
+    public void From_TenthSpin_NotUncapped()
     {
+        // 5 + (10-1)*4 = 41 — %25 tavanı kaldırıldı.
         SlotOdds odds = SlotOdds.From(50f, 10);
 
-        Assert.AreEqual(25f, odds.Not, 0.0001f);
+        Assert.AreEqual(41f, odds.Not, 0.0001f);
     }
 
     [Test]

@@ -49,12 +49,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: OneMoreTime.Runtime::OneMoreTime.RunController
   player: {fileID: 0}
-  parTime: 1
+  parTime: 6
   runQuality:
-    timePenaltyPerSecondOverPar: 1
+    timePenaltyPerSecondOverPar: 2
     corpsePenalty: 5
-    floor: 1
-    cap: 70
+    floor: 5
+    cap: 60
 --- !u!114 &2794913094879123630
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -114,4 +114,4 @@ MonoBehaviour:
   tokens: {fileID: 0}
   run: {fileID: 3481217858608603798}
   interaction: {fileID: 0}
-  continueKey: 1
+  loseScreen: {fileID: 0}

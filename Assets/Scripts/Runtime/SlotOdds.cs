@@ -18,11 +18,11 @@ namespace OneMoreTime
 
         /// pRIGHT koşu kalitesine kilitlidir; RunQuality tarafında (RunQualityConfig ile)
         /// zaten sınırlandığı için burada olduğu gibi kabul edilir.
-        /// pNOT = clamp(5 + (çevirmeNo−1)×4, 5, 25). pONE kalan olasılıktır.
+        /// pNOT = 5 + (çevirmeNo−1)×4, tavansız — "artan kıyamet" GDD §3.4. pONE kalan olasılıktır.
         public static SlotOdds From(float pRight, int spinNumber)
         {
             float right = pRight;
-            float not = Mathf.Clamp(5f + (spinNumber - 1) * 4f, 5f, 25f);
+            float not = 5f + (spinNumber - 1) * 4f;
             float one = Mathf.Max(0f, 100f - right - not);
             return new SlotOdds(right, one, not);
         }

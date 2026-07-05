@@ -42,6 +42,7 @@ namespace OneMoreTime
             float rightChance = RunQuality.RightOnTimeChance(seconds, corpses, parTime, runQuality);
             LastResult = new RunResult(seconds, corpses, rightChance);
             HasFinished = true;
+            GameAudioEvents.RaiseRunFinished();
             RunFinished?.Invoke(LastResult);
         }
     }

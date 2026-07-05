@@ -17,7 +17,7 @@ namespace OneMoreTime
                 GUI.Label(new Rect(10, 110, 400, 24),
                     $"RIGHT %{odds.Right:0}  ONE %{odds.One:0}  NOT %{odds.Not:0}");
                 GUI.Label(new Rect(10, 132, 300, 24), $"Çevirme #{slot.SpinNumber}");
-                GUI.Label(new Rect(10, 154, 300, 24), "[Enter] çevir");
+                GUI.Label(new Rect(10, 154, 300, 24), "[E] çevir");
             }
 
             if (slot.LastSpin.HasValue)
@@ -32,11 +32,7 @@ namespace OneMoreTime
             {
                 GUI.Label(new Rect(10, 198, 300, 24), "RIGHT ON TIME — WIN");
             }
-            else if (slot.Lost)
-            {
-                GUI.Label(new Rect(10, 198, 300, 24), "NOT THIS TIME — LOSS");
-                GUI.Label(new Rect(10, 220, 300, 24), "[Enter] devam et");
-            }
+            // Lost: LoseScreen (LossFlowController) gerçek kayıp ekranını gösterir.
         }
     }
 }
