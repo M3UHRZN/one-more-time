@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 560339431898593049}
   - component: {fileID: 413934315405158360}
   - component: {fileID: 2641616189211525406}
+  - component: {fileID: 8037489102191819612}
+  - component: {fileID: 4362010383373952316}
   m_Layer: 0
   m_Name: kaktus3
   m_TagString: Untagged
@@ -26,13 +28,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4487137315879062626}
   serializedVersion: 2
-  m_LocalRotation: {x: -4.3297806e-17, y: 0.7071068, z: 0.7071068, w: -4.3297806e-17}
+  m_LocalRotation: {x: -0, y: -0.7071068, z: -0.7071068, w: 0}
   m_LocalPosition: {x: 25.795979, y: 0.6119316, z: 0.23554325}
   m_LocalScale: {x: 0.6263846, y: 0.6263846, z: 0.6263846}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: -180}
 --- !u!33 &413934315405158360
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -90,3 +92,36 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &8037489102191819612
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4487137315879062626}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.564609, y: 2.6399693, z: 4.150742}
+  m_Center: {x: -0.3702477, y: -0.00041473273, z: 0.6427905}
+--- !u!114 &4362010383373952316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4487137315879062626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 089b5206286635742a83b3dfe3d39906, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: OneMoreTime.Runtime::OneMoreTime.Hazard
