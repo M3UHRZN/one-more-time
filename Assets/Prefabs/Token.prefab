@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 3255262401412337106}
   - component: {fileID: 556155159900189074}
   - component: {fileID: 3824706671407941451}
+  - component: {fileID: 4175274225472589104}
   m_Layer: 0
   m_Name: Token
   m_TagString: Untagged
@@ -8549,7 +8550,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 2101
+  m_VersionIndex: 2116
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -8664,7 +8665,7 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -8672,3 +8673,18 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: -0.44202638, y: 0, z: 0}
+--- !u!114 &4175274225472589104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1114711358549102421}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 581c16a1ff69dc54b8c91393b127a74b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::hover
+  floatHeight: 0.25
+  floatSpeed: 2
+  rotationSpeed: 120

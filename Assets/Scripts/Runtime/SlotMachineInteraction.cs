@@ -21,6 +21,8 @@ namespace OneMoreTime
         [SerializeField] Transform viewpoint;
         [SerializeField] Animator machineAnimator;
         [SerializeField] InputActionAsset inputAsset;
+        [SerializeField] SceneFadeTransition transition;
+        [SerializeField] string nextSceneName = "LVL2";
 
         [SerializeField] float zoomDuration = 0.6f;
         [SerializeField] float leverPullDuration = 2.233f; // pullthelever.anim uzunluğu
@@ -103,7 +105,7 @@ namespace OneMoreTime
             if (slot.Won)
             {
                 yield return new WaitForSeconds(winDisplayDelay);
-                EndInteraction();
+                transition.LoadScene(nextSceneName);
             }
             // Lost: LossFlowController, Space'e basılınca EndInteraction(instant:true) çağırır.
             // OneMoreTime / affedilmiş NotThisTime: oturum açık kalır, oyuncu tekrar E'ye basar.
