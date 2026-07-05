@@ -35952,6 +35952,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1386132538}
     - target: {fileID: 481737315887002061, guid: 6a4c8c450601f374b9b35dbe45f48d3e, type: 3}
+      propertyPath: nextSceneName
+      value: end
+      objectReference: {fileID: 0}
+    - target: {fileID: 481737315887002061, guid: 6a4c8c450601f374b9b35dbe45f48d3e, type: 3}
       propertyPath: cameraTransform
       value: 
       objectReference: {fileID: 4210867239432520998}
@@ -36263,9 +36267,33 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 837371713574698599, guid: d3106f2ea70893b40b6b859b436c18f4, type: 3}
+      propertyPath: slot
+      value: 
+      objectReference: {fileID: 1318511079}
     - target: {fileID: 2843550626309464802, guid: d3106f2ea70893b40b6b859b436c18f4, type: 3}
       propertyPath: m_Name
       value: Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 4003388956499057305, guid: d3106f2ea70893b40b6b859b436c18f4, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 778528214523990373}
+    - target: {fileID: 4003388956499057305, guid: d3106f2ea70893b40b6b859b436c18f4, type: 3}
+      propertyPath: tokens
+      value: 
+      objectReference: {fileID: 602689085404710498}
+    - target: {fileID: 4031402241130576959, guid: d3106f2ea70893b40b6b859b436c18f4, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 65f742fac982e514180fb4cda6a283d5, type: 2}
+    - target: {fileID: 4031402241130576959, guid: d3106f2ea70893b40b6b859b436c18f4, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -1705546154641766882, guid: 65f742fac982e514180fb4cda6a283d5, type: 2}
+    - target: {fileID: 4031402241130576959, guid: d3106f2ea70893b40b6b859b436c18f4, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6209937934172942914, guid: d3106f2ea70893b40b6b859b436c18f4, type: 3}
       propertyPath: m_Name
