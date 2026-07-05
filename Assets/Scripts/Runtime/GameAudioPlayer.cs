@@ -54,8 +54,14 @@ namespace OneMoreTime
             }
             else
             {
-                binding.source.pitch = pitch;
-                binding.source.PlayOneShot(clip, binding.volume);
+                AudioSource activeSource = binding.source != null ? binding.source : GetComponent<AudioSource>();
+                if (activeSource == null)
+                {
+                    Debug.LogWarning($"GameAudioPlayer: cue {payload.Cue} is set to 2D but no AudioSource is available on the player or binding.");
+                    return;
+                }
+                activeSource.pitch = pitch;
+                activeSource.PlayOneShot(clip, binding.volume);
             }
         }
 
