@@ -17,6 +17,7 @@ namespace OneMoreTime
         [SerializeField] SlotController slot;
         [SerializeField] RunController run;
         [SerializeField] SlotHudDebug hud;
+        [SerializeField] LossFlowController loss;
         [SerializeField] Transform cameraTransform;
         [SerializeField] Transform viewpoint;
         [SerializeField] Animator machineAnimator;
@@ -107,7 +108,10 @@ namespace OneMoreTime
                 yield return new WaitForSeconds(winDisplayDelay);
                 transition.LoadScene(nextSceneName);
             }
-            // Lost: LossFlowController, Space'e basılınca EndInteraction(instant:true) çağırır.
+            else if (slot.Lost)
+            {
+                loss.ShowLoseScreen(); // LOSE ekranı; herhangi bir tuşla LossFlowController.ForceContinue çağrılır.
+            }
             // OneMoreTime / affedilmiş NotThisTime: oturum açık kalır, oyuncu tekrar E'ye basar.
         }
 

@@ -4,8 +4,8 @@ using UnityEngine.InputSystem;
 namespace OneMoreTime
 {
     /// GDD §3.5: gerçek kayıpta (NOT THIS TIME, jetonsuz) bölüm başına dönüş —
-    /// tüm cesetler silinir, jeton 1'e sıfırlanır, yeni koşu başlar. Tuşla onaylanır
-    /// (oyuncu kayıp mesajını görebilsin); ince orkestratör, mantık ilgili sınıflarda.
+    /// tüm cesetler silinir, jeton 1'e sıfırlanır, yeni koşu başlar. Kayıp ekranı (LOSE)
+    /// gösterilir, herhangi bir tuşla onaylanır; ince orkestratör, mantık ilgili sınıflarda.
     public class LossFlowController : MonoBehaviour
     {
         [SerializeField] SlotController slot;
@@ -13,21 +13,37 @@ namespace OneMoreTime
         [SerializeField] PlayerTokens tokens;
         [SerializeField] RunController run;
         [SerializeField] SlotMachineInteraction interaction;
-        [SerializeField] Key continueKey = Key.Enter;
+        [SerializeField] LoseScreen loseScreen;
 
+        bool _lossArmed;
         bool _awaitingContinue;
 
         void OnEnable() => slot.RunLost += HandleRunLost;
         void OnDisable() => slot.RunLost -= HandleRunLost;
 
-        void HandleRunLost() => _awaitingContinue = true;
+        // RunLost spin çözülür çözülmez (animasyondan önce) gelir; burada yalnızca kur.
+        // Kayıp ekranını, makine "NOT THIS TIME"ı gösterdikten sonra SlotMachineInteraction açar.
+        void HandleRunLost() => _lossArmed = true;
+
+        /// Slot kayıp animasyonu bittikten sonra SlotMachineInteraction çağırır: ekranı karartır,
+        /// LOSE + "Press any key to continue" gösterir, herhangi bir tuşu beklemeye başlar.
+        public void ShowLoseScreen()
+        {
+            if (!_lossArmed) return;
+
+            loseScreen.Show();
+            _awaitingContinue = true;
+        }
 
         void Update()
         {
             if (!_awaitingContinue) return;
-            if (Keyboard.current == null || !Keyboard.current[continueKey].wasPressedThisFrame) return;
+            if (Keyboard.current == null || !Keyboard.current.anyKey.wasPressedThisFrame) return;
 
+            _awaitingContinue = false;
+            _lossArmed = false;
             ForceContinue();
+            loseScreen.Hide();
         }
 
         public void ForceContinue()
