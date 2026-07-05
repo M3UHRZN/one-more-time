@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,19 +10,19 @@ namespace OneMoreTime
     [RequireComponent(typeof(CapsuleCollider))]
     public class PlayerMovementController : MonoBehaviour
     {
+        /// Yalnızca yan (right/left) yönler taranır — ön/arka duvara koşarken wall-run'ın
+        /// aniden yana kaymasını, wall-kick'in ve double-jump reset'in ön duvardan tetiklenmesini
+        /// önler. Tüm duvar mekanikleri artık yalnızca gerçekten yandaki duvarlarla çalışır.
         static readonly Vector3[] WallProbeLocalDirections =
         {
-            Vector3.forward, Vector3.right, Vector3.back, Vector3.left
+            Vector3.right, Vector3.left
         };
-        /// Wall-run girişi yalnızca yan (right/left) temastan tetiklenir — ön/arka duvara
-        /// koşarken aniden yana kaymayı önler. Ön/arka yine de genel duvar teması sayılır
-        /// (wall-jump-off-any-wall, double-jump reset vb. için).
-        static readonly bool[] WallProbeIsSide = { false, true, false, true };
 
         [SerializeField] InputActionAsset inputAsset;
         [SerializeField] MovementConfig config = new MovementConfig();
         [SerializeField] Transform cameraTransform;
         [SerializeField] LayerMask groundMask = ~0;
+        [SerializeField] LayerMask wallMask = ~0;
 
         Rigidbody _rb;
         CapsuleCollider _capsule;
@@ -38,10 +39,30 @@ namespace OneMoreTime
         bool _grounded;
         bool _sliding;
 
+        float _stepClimbRemaining;    // metre, kalan tırmanış (0 = boşta)
+        Vector3 _stepClimbVelocity;   // tırmanış boyunca korunan yatay hız
+        bool _stepDetected;           // yalnız gizmo için
+
         /// Efekt katmanı için: yatay hız (FOV, hız çizgileri eşiği ~10 m/s hook'u).
         public float HorizontalSpeed { get; private set; }
         public bool IsSliding => _sliding;
         public bool IsWallRunning => _wallRun != null && _wallRun.IsActive;
+        public bool IsGrounded => _grounded;
+
+        /// Animator köprüsü (#karakter animasyonu) için: zıplama kaynağı.
+        public event Action<MovementJumpSource> Jumped;
+
+        /// Slot makinesi etkileşimi gibi anlar için: hareketi dondurur. Paylaşılan Input map'i
+        /// kapatmaz (Interact aynı map'te) — yalnızca Update/FixedUpdate'i atlar ve Rigidbody'yi
+        /// kinematik yaparak fizikten tamamen ayırır.
+        public bool ControlEnabled { get; private set; } = true;
+
+        public void SetControlEnabled(bool enabled)
+        {
+            ControlEnabled = enabled;
+            _rb.isKinematic = !enabled;
+            if (!enabled) _rb.linearVelocity = Vector3.zero;
+        }
         public float WallRunSide
         {
             get
@@ -79,6 +100,8 @@ namespace OneMoreTime
 
         void Update()
         {
+            if (!ControlEnabled) return;
+
             if (_jump.WasPressedThisFrame())
             {
                 _jumpGate.PressJump();
@@ -88,6 +111,8 @@ namespace OneMoreTime
 
         void FixedUpdate()
         {
+            if (!ControlEnabled) return;
+
             float dt = Time.fixedDeltaTime;
             _grounded = ProbeGround(out Vector3 groundNormal);
             _jumpGate.Tick(dt, _grounded);
@@ -163,6 +188,19 @@ namespace OneMoreTime
                 horiz = Vector3.MoveTowards(horiz, target, accel * dt);
             }
 
+            // Alçak engele yumuşak tırmanış: yalnızca yerdeyken, engele doğru gidiliyorsa tetiklenir.
+            Vector3 stepMoveDir = _lastHorizontalVelocity.sqrMagnitude > 0.0001f
+                ? _lastHorizontalVelocity.normalized : Vector3.zero;
+            if (_stepClimbRemaining <= 0f && _grounded && !_sliding && !_wallRun.IsActive
+                && speed > config.stepMinSpeed && stepMoveDir != Vector3.zero
+                && Vector3.Dot(wish, stepMoveDir) > 0.5f
+                && ProbeStep(stepMoveDir, out float stepClimbHeight))
+            {
+                _stepClimbRemaining = stepClimbHeight;
+                _stepClimbVelocity = _lastHorizontalVelocity;
+            }
+            _stepDetected = _stepClimbRemaining > 0f;
+
             Vector3 nextVel;
             if (wallJumpFromOwnedRun)
             {
@@ -215,12 +253,14 @@ namespace OneMoreTime
                 wallJumpAvailable,
                 doubleJumpAvailable);
 
+            bool jumpedThisTick = false;
             if (jumpSource == MovementJumpSource.Ground && _jumpGate.TryConsumeJump())
             {
                 _wallGate.CancelPendingJump();
                 if (_wallRun.IsActive) _wallRun.Exit(false);
                 nextVel = MovementMath.ApplyJump(nextVel, MovementMath.JumpVelocity(config.jumpHeight, config.gravity));
                 _sliding = false;
+                jumpedThisTick = true;
             }
             else if (jumpSource == MovementJumpSource.Wall
                 && _wallGate.TryConsumeJump(wallJumpAvailableAtTickStart))
@@ -236,6 +276,7 @@ namespace OneMoreTime
                 nextVel = MovementMath.WallJumpVelocity(nextVel, jumpNormal,
                     config.wallJumpPush, MovementMath.JumpVelocity(config.jumpHeight, config.gravity));
                 _sliding = false;
+                jumpedThisTick = true;
             }
             else if (jumpSource == MovementJumpSource.Double
                 && _jumpGate.TryConsumeBufferedJump()
@@ -245,6 +286,19 @@ namespace OneMoreTime
                 nextVel = MovementMath.ApplyJump(nextVel,
                     MovementMath.JumpVelocity(config.jumpHeight, config.gravity));
                 _sliding = false;
+                jumpedThisTick = true;
+            }
+
+            if (jumpedThisTick)
+            {
+                _stepClimbRemaining = 0f; // zıplama tırmanışı iptal eder
+                Jumped?.Invoke(jumpSource);
+            }
+            else if (_stepClimbRemaining > 0f)
+            {
+                float rise = Mathf.Min(config.stepClimbSpeed * dt, _stepClimbRemaining);
+                _stepClimbRemaining -= rise;
+                nextVel = new Vector3(_stepClimbVelocity.x, rise / dt, _stepClimbVelocity.z);
             }
 
             _rb.linearVelocity = nextVel;
@@ -276,6 +330,50 @@ namespace OneMoreTime
             return false;
         }
 
+        /// Ayak hizasının stepHeight altında kalan bir engelin üstünü bulur. moveDir yatay,
+        /// normalize hareket yönü. Bulursa climbHeight = ayaktan basamak üstüne çıkış (m).
+        bool ProbeStep(Vector3 moveDir, out float climbHeight)
+        {
+            const float lowOffset = 0.05f;
+            const float clearance = 0.02f;
+            const float walkableY = 0.5f;
+            const float eps = 0.02f;
+
+            climbHeight = 0f;
+            LayerMask mask = groundMask | wallMask;
+            Vector3 foot = transform.position + _capsule.center - Vector3.up * (_capsule.height * 0.5f);
+            float reach = _capsule.radius + config.stepForwardProbe;
+
+            // Ayak hizasında dik bir yüzey yoksa basılacak bir engel de yok.
+            if (!Physics.Raycast(foot + Vector3.up * lowOffset, moveDir, out var lowHit, reach,
+                    mask, QueryTriggerInteraction.Ignore)
+                || Mathf.Abs(lowHit.normal.y) >= 0.3f)
+                return false;
+
+            // stepHeight'ın üstünde de engel varsa bu bir duvar — mevcut duvar akışına bırak.
+            if (Physics.Raycast(foot + Vector3.up * (config.stepHeight + eps), moveDir, reach,
+                    mask, QueryTriggerInteraction.Ignore))
+                return false;
+
+            // Basamağın üst yüzeyini bul.
+            Vector3 topProbeOrigin = foot + Vector3.up * (config.stepHeight + eps) + moveDir * reach;
+            if (!Physics.SphereCast(topProbeOrigin, 0.05f, Vector3.down, out var topHit,
+                    config.stepHeight + eps, mask, QueryTriggerInteraction.Ignore)
+                || topHit.normal.y < walkableY)
+                return false;
+
+            float ledgeTopY = topHit.point.y;
+            Vector3 newFoot = new Vector3(topProbeOrigin.x, ledgeTopY, topProbeOrigin.z);
+
+            // Basamağın üstünde kafa sıkışacak bir tavan varsa tırmanma.
+            if (Physics.SphereCast(newFoot, _capsule.radius * 0.9f, Vector3.up, out _,
+                    _capsule.height, mask, QueryTriggerInteraction.Ignore))
+                return false;
+
+            climbHeight = Mathf.Clamp((ledgeTopY - foot.y) + clearance, 0f, config.stepHeight + clearance);
+            return climbHeight > 0f;
+        }
+
         void OnDrawGizmosSelected()
         {
             CapsuleCollider capsule = _capsule ? _capsule : GetComponent<CapsuleCollider>();
@@ -296,6 +394,15 @@ namespace OneMoreTime
                 Vector3 direction = transform.TransformDirection(WallProbeLocalDirections[i]);
                 Gizmos.DrawRay(center, direction * wallDist);
             }
+
+            // Step-up problarını editörde çalışma yönü olmadığı için transform.forward'da göster.
+            Vector3 foot = transform.position + capsule.center - Vector3.up * (capsule.height * 0.5f);
+            float stepReach = capsule.radius + config.stepForwardProbe;
+            Gizmos.color = _stepDetected ? Color.magenta : Color.gray;
+            Gizmos.DrawRay(foot + Vector3.up * 0.05f, transform.forward * stepReach);
+            Gizmos.DrawRay(foot + Vector3.up * config.stepHeight, transform.forward * stepReach);
+            Gizmos.DrawRay(foot + Vector3.up * config.stepHeight + transform.forward * stepReach,
+                Vector3.down * config.stepHeight);
         }
 
         bool ProbeWall(out Vector3 normal, out bool hasBlockedWallContact, out bool hasEnterableWallContact)
@@ -311,7 +418,7 @@ namespace OneMoreTime
             {
                 Vector3 direction = transform.TransformDirection(WallProbeLocalDirections[i]);
                 if (!Physics.Raycast(center, direction, out var hit, dist,
-                        groundMask, QueryTriggerInteraction.Ignore)
+                        wallMask, QueryTriggerInteraction.Ignore)
                     || Mathf.Abs(hit.normal.y) >= 0.3f)
                     continue;
 
@@ -324,7 +431,7 @@ namespace OneMoreTime
                     if (activeNormal == Vector3.zero && _wallRun.MatchesActiveWall(hitNormal))
                         activeNormal = hitNormal;
                 }
-                else if (enterableNormal == Vector3.zero && WallProbeIsSide[i] && _wallRun.CanEnter(hitNormal))
+                else if (enterableNormal == Vector3.zero && _wallRun.CanEnter(hitNormal))
                 {
                     enterableNormal = hitNormal;
                 }

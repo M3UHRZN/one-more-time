@@ -53,6 +53,38 @@ public class LossFlowControllerTests
         slotGo.SetActive(false); // OnEnable'da RunController referansı kurulu değil.
         SlotController slot = slotGo.AddComponent<SlotController>();
 
+        // ForceContinue artık interaction.EndInteraction(instant:true) çağırıyor — o çağrının
+        // dokunduğu alanlar (movement/look/fov/slot/cameraTransform/hud) kadarı kuruluyor.
+        var movementGo = new GameObject("Movement");
+        _createdObjects.Add(movementGo);
+        movementGo.SetActive(false); // Awake (inputAsset ister) tetiklenmesin.
+        PlayerMovementController movement = movementGo.AddComponent<PlayerMovementController>();
+        SetField(movement, "_rb", movementGo.GetComponent<Rigidbody>());
+
+        var lookGo = new GameObject("Look");
+        _createdObjects.Add(lookGo);
+        lookGo.SetActive(false);
+        FirstPersonLook look = lookGo.AddComponent<FirstPersonLook>();
+
+        var camGo = new GameObject("Cam");
+        _createdObjects.Add(camGo);
+        SpeedFovEffect fov = camGo.AddComponent<SpeedFovEffect>();
+
+        var hudGo = new GameObject("Hud");
+        _createdObjects.Add(hudGo);
+        SlotHudDebug hud = hudGo.AddComponent<SlotHudDebug>();
+
+        var interactionGo = new GameObject("Interaction");
+        _createdObjects.Add(interactionGo);
+        interactionGo.SetActive(false);
+        SlotMachineInteraction interaction = interactionGo.AddComponent<SlotMachineInteraction>();
+        SetField(interaction, "movement", movement);
+        SetField(interaction, "look", look);
+        SetField(interaction, "fov", fov);
+        SetField(interaction, "slot", slot);
+        SetField(interaction, "hud", hud);
+        SetField(interaction, "cameraTransform", camGo.transform);
+
         var lossGo = new GameObject("LossFlow");
         _createdObjects.Add(lossGo);
         lossGo.SetActive(false);
@@ -61,6 +93,7 @@ public class LossFlowControllerTests
         SetField(loss, "player", respawner);
         SetField(loss, "tokens", tokens);
         SetField(loss, "run", run);
+        SetField(loss, "interaction", interaction);
 
         // Object.Destroy Play mode için doğrudur; EditMode'da çalıştırınca Unity'nin
         // edit-mode uyarısını Error olarak loglar (bkz. CorpseRegistryTests).

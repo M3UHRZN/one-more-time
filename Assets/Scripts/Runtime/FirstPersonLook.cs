@@ -24,6 +24,13 @@ namespace OneMoreTime
         float _eyeHeight;
         float _roll;
 
+        /// Slot makinesi etkileşimi gibi anlar için: bakışı dondurur (kamerayı başka bir
+        /// script sürebilsin diye). Component enabled kalır, yalnızca Update atlanır — bu yüzden
+        /// OnDisable'daki cursor-unlock yan etkisi tetiklenmez.
+        public bool ControlEnabled { get; private set; } = true;
+
+        public void SetControlEnabled(bool enabled) => ControlEnabled = enabled;
+
         void Awake()
         {
             _playerMap = inputAsset.FindActionMap("Player", true);
@@ -47,6 +54,8 @@ namespace OneMoreTime
 
         void Update()
         {
+            if (!ControlEnabled) return;
+
             Vector2 d = _look.ReadValue<Vector2>();
             _yaw += d.x * lookSensitivity;
             _pitch = Mathf.Clamp(_pitch - d.y * lookSensitivity, -pitchClamp, pitchClamp);
