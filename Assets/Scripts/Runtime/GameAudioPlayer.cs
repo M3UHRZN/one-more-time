@@ -5,12 +5,13 @@ namespace OneMoreTime
 {
     /// Sahnede tek örnek: GameAudioEvents'i dinler, cue'yu Inspector'da atanmış klibe çevirir.
     /// Eksik binding veya klip oynatmayı sessizce atlar — ses hatası gameplay'i asla durdurmaz.
+    [ExecuteAlways]
     public class GameAudioPlayer : MonoBehaviour
     {
         [SerializeField] List<AudioCueBinding> bindings = new List<AudioCueBinding>();
 
-        void Awake() => GameAudioEvents.CueRaised += HandleCueRaised;
-        void OnDestroy() => GameAudioEvents.CueRaised -= HandleCueRaised;
+        void OnEnable() => GameAudioEvents.CueRaised += HandleCueRaised;
+        void OnDisable() => GameAudioEvents.CueRaised -= HandleCueRaised;
 
         void OnValidate()
         {
