@@ -76,6 +76,8 @@ namespace OneMoreTime
             look.SetControlEnabled(false);
             fov.enabled = false;
 
+            GameAudioEvents.RaiseSlotInteractionStarted(transform.position);
+
             if (_cameraRoutine != null) StopCoroutine(_cameraRoutine);
             _cameraRoutine = StartCoroutine(MoveCamera(viewpoint.position, viewpoint.rotation, zoomDuration, null));
         }
@@ -84,6 +86,7 @@ namespace OneMoreTime
         {
             hud.enabled = false;
             slot.InputLocked = true;
+            GameAudioEvents.RaiseSlotOutcome(result.Outcome, transform.position);
             machineAnimator.SetTrigger(SpinTrigger); // idle -> Pull-lever -> Shuffle (otomatik)
             StartCoroutine(PlaySpinSequence(result.Outcome));
         }

@@ -106,6 +106,128 @@ public class LossFlowControllerTests
         Assert.IsTrue(run.IsRunning, "Yeni koşu başlamalı.");
     }
 
+    LossFlowController BuildLossFlowController()
+    {
+        var playerGo = new GameObject("Player");
+        _createdObjects.Add(playerGo);
+        playerGo.transform.position = new Vector3(5f, 1f, 3f);
+        Rigidbody body = playerGo.AddComponent<Rigidbody>();
+
+        var spawnPointGo = new GameObject("SpawnPoint");
+        _createdObjects.Add(spawnPointGo);
+        spawnPointGo.transform.position = Vector3.zero;
+
+        PlayerRespawner respawner = playerGo.AddComponent<PlayerRespawner>();
+        SetField(respawner, "body", body);
+        SetField(respawner, "spawnPoint", spawnPointGo.transform);
+
+        PlayerTokens tokens = playerGo.AddComponent<PlayerTokens>();
+
+        var runGo = new GameObject("Run");
+        _createdObjects.Add(runGo);
+        RunController run = runGo.AddComponent<RunController>();
+
+        var slotGo = new GameObject("Slot");
+        _createdObjects.Add(slotGo);
+        slotGo.SetActive(false);
+        SlotController slot = slotGo.AddComponent<SlotController>();
+
+        var movementGo = new GameObject("Movement");
+        _createdObjects.Add(movementGo);
+        movementGo.SetActive(false);
+        PlayerMovementController movement = movementGo.AddComponent<PlayerMovementController>();
+        SetField(movement, "_rb", movementGo.GetComponent<Rigidbody>());
+
+        var lookGo = new GameObject("Look");
+        _createdObjects.Add(lookGo);
+        lookGo.SetActive(false);
+        FirstPersonLook look = lookGo.AddComponent<FirstPersonLook>();
+
+        var camGo = new GameObject("Cam");
+        _createdObjects.Add(camGo);
+        SpeedFovEffect fov = camGo.AddComponent<SpeedFovEffect>();
+
+        var hudGo = new GameObject("Hud");
+        _createdObjects.Add(hudGo);
+        SlotHudDebug hud = hudGo.AddComponent<SlotHudDebug>();
+
+        var interactionGo = new GameObject("Interaction");
+        _createdObjects.Add(interactionGo);
+        interactionGo.SetActive(false);
+        SlotMachineInteraction interaction = interactionGo.AddComponent<SlotMachineInteraction>();
+        SetField(interaction, "movement", movement);
+        SetField(interaction, "look", look);
+        SetField(interaction, "fov", fov);
+        SetField(interaction, "slot", slot);
+        SetField(interaction, "hud", hud);
+        SetField(interaction, "cameraTransform", camGo.transform);
+
+        var loseScreenGo = new GameObject("LoseScreen");
+        _createdObjects.Add(loseScreenGo);
+        loseScreenGo.SetActive(false);
+        CanvasGroup group = loseScreenGo.AddComponent<CanvasGroup>();
+        LoseScreen loseScreen = loseScreenGo.AddComponent<LoseScreen>();
+        SetField(loseScreen, "group", group);
+        loseScreenGo.SetActive(true);
+
+        var lossGo = new GameObject("LossFlow");
+        _createdObjects.Add(lossGo);
+        lossGo.SetActive(false);
+        LossFlowController loss = lossGo.AddComponent<LossFlowController>();
+        SetField(loss, "slot", slot);
+        SetField(loss, "player", respawner);
+        SetField(loss, "tokens", tokens);
+        SetField(loss, "run", run);
+        SetField(loss, "interaction", interaction);
+        SetField(loss, "loseScreen", loseScreen);
+
+        return loss;
+    }
+
+    [Test]
+    public void ShowLoseScreen_WhenArmed_RaisesSlotLoseScreenShownCue()
+    {
+        LossFlowController loss = BuildLossFlowController();
+        SetField(loss, "_lossArmed", true);
+
+        int fireCount = 0;
+        void Handler(AudioCuePayload payload) => fireCount++;
+        GameAudioEvents.CueRaised += Handler;
+        try
+        {
+            loss.ShowLoseScreen();
+        }
+        finally
+        {
+            GameAudioEvents.CueRaised -= Handler;
+        }
+
+        Assert.AreEqual(1, fireCount);
+    }
+
+    [Test]
+    public void ForceContinue_RaisesLossContinueConfirmedCue()
+    {
+        // BuildLossFlowController registers no corpse, so ClearCorpses() has nothing to
+        // destroy here — unlike ForceContinue_ClearsCorpsesResetsTokensAndRestartsRun, no
+        // edit-mode Destroy error is expected.
+        LossFlowController loss = BuildLossFlowController();
+
+        int fireCount = 0;
+        void Handler(AudioCuePayload payload) => fireCount++;
+        GameAudioEvents.CueRaised += Handler;
+        try
+        {
+            loss.ForceContinue();
+        }
+        finally
+        {
+            GameAudioEvents.CueRaised -= Handler;
+        }
+
+        Assert.AreEqual(1, fireCount);
+    }
+
     static T GetField<T>(Object component, string fieldName)
     {
         return (T)component.GetType()

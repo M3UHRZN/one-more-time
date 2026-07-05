@@ -64,6 +64,36 @@ public class RunControllerTests
         Assert.AreEqual(1, fireCount, "A second Finish call must be a no-op.");
     }
 
+    [Test]
+    public void Finish_RaisesRunFinishedCue()
+    {
+        var playerGo = new GameObject("Player");
+        _createdObjects.Add(playerGo);
+        PlayerRespawner player = playerGo.AddComponent<PlayerRespawner>();
+
+        var runGo = new GameObject("RunController");
+        _createdObjects.Add(runGo);
+        RunController run = runGo.AddComponent<RunController>();
+        SetField(run, "player", player);
+
+        RunTimer timer = GetField<RunTimer>(run, "_timer");
+        timer.Begin();
+
+        int fireCount = 0;
+        void Handler(AudioCuePayload payload) => fireCount++;
+        GameAudioEvents.CueRaised += Handler;
+        try
+        {
+            run.Finish();
+        }
+        finally
+        {
+            GameAudioEvents.CueRaised -= Handler;
+        }
+
+        Assert.AreEqual(1, fireCount);
+    }
+
     static T GetField<T>(Object component, string fieldName)
     {
         return (T)component.GetType()

@@ -23,6 +23,7 @@ namespace OneMoreTime
             if (_transitioning) return;
 
             _transitioning = true;
+            GameAudioEvents.RaiseSceneTransitionStarted();
             StartCoroutine(LoadSceneRoutine(sceneName));
         }
 

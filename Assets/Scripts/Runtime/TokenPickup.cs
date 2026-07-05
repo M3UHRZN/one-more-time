@@ -11,6 +11,7 @@ namespace OneMoreTime
             if (!tokens) return;
 
             tokens.Add(1);
+            GameAudioEvents.RaiseCoinPickup(transform.position);
             Destroy(gameObject);
         }
     }

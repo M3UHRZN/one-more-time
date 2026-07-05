@@ -32,6 +32,7 @@ namespace OneMoreTime
             if (!_lossArmed) return;
 
             loseScreen.Show();
+            GameAudioEvents.RaiseSlotLoseScreenShown();
             _awaitingContinue = true;
         }
 
@@ -54,6 +55,7 @@ namespace OneMoreTime
             tokens.ResetToDefault();
             slot.ClearAfterLoss();
             run.BeginRun();
+            GameAudioEvents.RaiseLossContinueConfirmed();
             _awaitingContinue = false;
         }
     }

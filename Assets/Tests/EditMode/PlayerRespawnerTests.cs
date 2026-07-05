@@ -74,6 +74,44 @@ public class PlayerRespawnerTests
         Assert.AreEqual(Vector3.zero, body.linearVelocity);
     }
 
+    [Test]
+    public void Kill_RaisesPlayerDiedAtDeathPosition()
+    {
+        var player = new GameObject("Player");
+        _createdObjects.Add(player);
+        player.transform.position = new Vector3(5f, 1f, 3f);
+        Rigidbody body = player.AddComponent<Rigidbody>();
+
+        var spawnPointGo = new GameObject("SpawnPoint");
+        _createdObjects.Add(spawnPointGo);
+        spawnPointGo.transform.position = Vector3.zero;
+
+        var corpsePrefab = new GameObject("CorpsePrefab");
+        _createdObjects.Add(corpsePrefab);
+
+        PlayerRespawner respawner = player.AddComponent<PlayerRespawner>();
+        SetField(respawner, "body", body);
+        SetField(respawner, "spawnPoint", spawnPointGo.transform);
+        SetField(respawner, "corpsePrefab", corpsePrefab);
+
+        Vector3 deathPosition = body.position;
+        AudioCuePayload received = default;
+        void Handler(AudioCuePayload payload) => received = payload;
+        GameAudioEvents.CueRaised += Handler;
+        try
+        {
+            respawner.Kill();
+        }
+        finally
+        {
+            GameAudioEvents.CueRaised -= Handler;
+        }
+
+        _createdObjects.Add(GetField<CorpseRegistry>(respawner, "_registry").Corpses[0]);
+        Assert.AreEqual(AudioCueId.PlayerDied, received.Cue);
+        Assert.AreEqual(deathPosition, received.Position);
+    }
+
     static T GetField<T>(PlayerRespawner respawner, string fieldName)
     {
         return (T)typeof(PlayerRespawner)

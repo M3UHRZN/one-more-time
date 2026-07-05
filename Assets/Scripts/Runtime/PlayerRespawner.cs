@@ -35,6 +35,7 @@ namespace OneMoreTime
             GameObject corpse = Instantiate(corpsePrefab, deathPosition, Quaternion.identity);
             _registry.Register(corpse);
 
+            GameAudioEvents.RaisePlayerDied(deathPosition);
             TeleportToSpawn();
         }
 
