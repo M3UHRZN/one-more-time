@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -46,6 +47,11 @@ namespace OneMoreTime
         public float HorizontalSpeed { get; private set; }
         public bool IsSliding => _sliding;
         public bool IsWallRunning => _wallRun != null && _wallRun.IsActive;
+        public bool IsGrounded => _grounded;
+
+        /// Animator köprüsü (#karakter animasyonu) için: yere iniş anı ve zıplama kaynağı.
+        public event Action Landed;
+        public event Action<MovementJumpSource> Jumped;
         public float WallRunSide
         {
             get
@@ -93,7 +99,9 @@ namespace OneMoreTime
         void FixedUpdate()
         {
             float dt = Time.fixedDeltaTime;
+            bool wasGrounded = _grounded;
             _grounded = ProbeGround(out Vector3 groundNormal);
+            if (_grounded && !wasGrounded) Landed?.Invoke();
             _jumpGate.Tick(dt, _grounded);
             Vector3 probedWallNormal = Vector3.zero;
             bool hasWallContact = ProbeWall(out probedWallNormal, out bool hasBlockedWallContact,
@@ -271,6 +279,7 @@ namespace OneMoreTime
             if (jumpedThisTick)
             {
                 _stepClimbRemaining = 0f; // zıplama tırmanışı iptal eder
+                Jumped?.Invoke(jumpSource);
             }
             else if (_stepClimbRemaining > 0f)
             {
