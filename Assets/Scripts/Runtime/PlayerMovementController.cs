@@ -51,6 +51,18 @@ namespace OneMoreTime
 
         /// Animator köprüsü (#karakter animasyonu) için: zıplama kaynağı.
         public event Action<MovementJumpSource> Jumped;
+
+        /// Slot makinesi etkileşimi gibi anlar için: hareketi dondurur. Paylaşılan Input map'i
+        /// kapatmaz (Interact aynı map'te) — yalnızca Update/FixedUpdate'i atlar ve Rigidbody'yi
+        /// kinematik yaparak fizikten tamamen ayırır.
+        public bool ControlEnabled { get; private set; } = true;
+
+        public void SetControlEnabled(bool enabled)
+        {
+            ControlEnabled = enabled;
+            _rb.isKinematic = !enabled;
+            if (!enabled) _rb.linearVelocity = Vector3.zero;
+        }
         public float WallRunSide
         {
             get
@@ -88,6 +100,8 @@ namespace OneMoreTime
 
         void Update()
         {
+            if (!ControlEnabled) return;
+
             if (_jump.WasPressedThisFrame())
             {
                 _jumpGate.PressJump();
@@ -97,6 +111,8 @@ namespace OneMoreTime
 
         void FixedUpdate()
         {
+            if (!ControlEnabled) return;
+
             float dt = Time.fixedDeltaTime;
             _grounded = ProbeGround(out Vector3 groundNormal);
             _jumpGate.Tick(dt, _grounded);

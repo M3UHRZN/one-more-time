@@ -12,6 +12,7 @@ namespace OneMoreTime
         [SerializeField] PlayerRespawner player;
         [SerializeField] PlayerTokens tokens;
         [SerializeField] RunController run;
+        [SerializeField] SlotMachineInteraction interaction;
         [SerializeField] Key continueKey = Key.Enter;
 
         bool _awaitingContinue;
@@ -31,6 +32,7 @@ namespace OneMoreTime
 
         public void ForceContinue()
         {
+            interaction.EndInteraction(instant: true); // teleport ile çakışmasın diye anlık
             player.ClearCorpses();
             player.ResetToSpawn();
             tokens.ResetToDefault();

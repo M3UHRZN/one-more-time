@@ -24,6 +24,10 @@ namespace OneMoreTime
         public int TokenCount => tokens ? tokens.Count : 0;
         public bool LastSpinForgiven { get; private set; }
 
+        /// Makine animasyonu oynarken (#slot etkileşim akışı) girdi kilidi — animasyon
+        /// bitmeden ikinci bir çevirme tetiklenmesin diye orkestratör tarafından ayarlanır.
+        public bool InputLocked { get; set; }
+
         public event Action<SlotSpinResult> SpinResolved;
         public event Action RunLost;
 
@@ -41,7 +45,7 @@ namespace OneMoreTime
 
         void Update()
         {
-            if (!CanSpin) return;
+            if (!CanSpin || InputLocked) return;
             if (Keyboard.current == null || !Keyboard.current[spinKey].wasPressedThisFrame) return;
 
             Spin();
