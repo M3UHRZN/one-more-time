@@ -36,6 +36,8 @@ namespace OneMoreTime
         static readonly int OneMoreTrigger = Animator.StringToHash("OneMore");
         static readonly int LoseTrigger = Animator.StringToHash("Lose");
 
+        public bool PlayerInRange => _playerInRange;
+
         InputAction _interact;
         bool _playerInRange;
         bool _interacting;

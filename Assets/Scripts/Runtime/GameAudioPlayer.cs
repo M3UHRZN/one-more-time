@@ -10,6 +10,22 @@ namespace OneMoreTime
     {
         [SerializeField] List<AudioCueBinding> bindings = new List<AudioCueBinding>();
 
+        static GameAudioPlayer instance;
+
+        void Awake()
+        {
+            if (!Application.isPlaying) return;
+
+            if (instance != null && instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+
         void OnEnable() => GameAudioEvents.CueRaised += HandleCueRaised;
         void OnDisable() => GameAudioEvents.CueRaised -= HandleCueRaised;
 

@@ -46,47 +46,49 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: OneMoreTime.Runtime::OneMoreTime.GameAudioPlayer
   bindings:
+  - cue: 0
+    clips:
+    - {fileID: 8300000, guid: ccb91d67f5f62424ebb8c99f48af7e9b, type: 3}
+    source: {fileID: 0}
+    useWorldPosition: 1
+    volume: 0.88
+    pitchRandomRange: 0.45
   - cue: 1
     clips:
     - {fileID: 8300000, guid: 2a8f6e3db164ba34895ff0e45b70d19a, type: 3}
-    source: {fileID: 6140511612857633872}
-    useWorldPosition: 0
+    source: {fileID: 0}
+    useWorldPosition: 1
     volume: 1
     pitchRandomRange: 0
   - cue: 2
     clips:
     - {fileID: 8300000, guid: b3e18a831ee972c44af40a3e4d8d41b8, type: 3}
-    - {fileID: 8300000, guid: fd064acb1cddd6e478281fe9859922d5, type: 3}
     source: {fileID: 6140511612857633872}
     useWorldPosition: 0
     volume: 1
     pitchRandomRange: 0
   - cue: 3
-    clips:
-    - {fileID: 8300000, guid: ccb91d67f5f62424ebb8c99f48af7e9b, type: 3}
-    source: {fileID: 6140511612857633872}
-    useWorldPosition: 0
+    clips: []
+    source: {fileID: 0}
+    useWorldPosition: 1
     volume: 1
     pitchRandomRange: 0
   - cue: 4
-    clips:
-    - {fileID: 0}
-    source: {fileID: 6140511612857633872}
-    useWorldPosition: 0
+    clips: []
+    source: {fileID: 0}
+    useWorldPosition: 1
     volume: 1
     pitchRandomRange: 0
   - cue: 5
-    clips:
-    - {fileID: 8300000, guid: c77af429bbc033549a19516875411400, type: 3}
+    clips: []
     source: {fileID: 0}
-    useWorldPosition: 0
+    useWorldPosition: 1
     volume: 1
     pitchRandomRange: 0
   - cue: 6
-    clips:
-    - {fileID: 0}
-    source: {fileID: 6140511612857633872}
-    useWorldPosition: 0
+    clips: []
+    source: {fileID: 0}
+    useWorldPosition: 1
     volume: 1
     pitchRandomRange: 0
   - cue: 7
@@ -98,7 +100,7 @@ MonoBehaviour:
     pitchRandomRange: 0
   - cue: 8
     clips:
-    - {fileID: 8300000, guid: c77af429bbc033549a19516875411400, type: 3}
+    - {fileID: 0}
     source: {fileID: 6140511612857633872}
     useWorldPosition: 0
     volume: 1
@@ -110,27 +112,20 @@ MonoBehaviour:
     useWorldPosition: 0
     volume: 1
     pitchRandomRange: 0
-  - cue: 11
-    clips:
-    - {fileID: 8300000, guid: 5fbd3a84a5d96e84c895d6476bcb2473, type: 3}
-    source: {fileID: 6140511612857633872}
-    useWorldPosition: 0
-    volume: 1
-    pitchRandomRange: 0
   - cue: 10
     clips:
     - {fileID: 8300000, guid: ccb91d67f5f62424ebb8c99f48af7e9b, type: 3}
-    source: {fileID: 6140511612857633872}
-    useWorldPosition: 0
+    source: {fileID: 0}
+    useWorldPosition: 1
     volume: 1
     pitchRandomRange: 0
-  - cue: 0
+  - cue: 11
     clips:
-    - {fileID: 8300000, guid: ccb91d67f5f62424ebb8c99f48af7e9b, type: 3}
-    source: {fileID: 6140511612857633872}
-    useWorldPosition: 0
-    volume: 0.88
-    pitchRandomRange: 0.51
+    - {fileID: 8300000, guid: 5fbd3a84a5d96e84c895d6476bcb2473, type: 3}
+    source: {fileID: 0}
+    useWorldPosition: 1
+    volume: 1
+    pitchRandomRange: 0
 --- !u!82 &6140511612857633872
 AudioSource:
   m_ObjectHideFlags: 0
