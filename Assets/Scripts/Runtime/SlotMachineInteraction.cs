@@ -86,7 +86,8 @@ namespace OneMoreTime
         {
             hud.enabled = false;
             slot.InputLocked = true;
-            GameAudioEvents.RaiseSlotOutcome(result.Outcome, transform.position);
+            GameAudioEvents.RaiseSlotLeverPulled(transform.position);
+            GameAudioEvents.RaiseSlotShuffle(transform.position);
             machineAnimator.SetTrigger(SpinTrigger); // idle -> Pull-lever -> Shuffle (otomatik)
             StartCoroutine(PlaySpinSequence(result.Outcome));
         }
@@ -94,6 +95,8 @@ namespace OneMoreTime
         IEnumerator PlaySpinSequence(SlotOutcome outcome)
         {
             yield return new WaitForSeconds(leverPullDuration + shuffleHoldDuration);
+
+            GameAudioEvents.RaiseSlotOutcome(outcome, transform.position);
 
             switch (outcome)
             {

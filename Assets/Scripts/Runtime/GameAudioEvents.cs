@@ -31,6 +31,8 @@ namespace OneMoreTime
         public static void RaiseSlotLoseScreenShown() => RaiseCue(AudioCueId.SlotLoseScreenShown);
         public static void RaiseLossContinueConfirmed() => RaiseCue(AudioCueId.LossContinueConfirmed);
         public static void RaiseSceneTransitionStarted() => RaiseCue(AudioCueId.SceneTransitionStarted);
+        public static void RaiseSlotLeverPulled(Vector3 position) => RaiseCue(AudioCueId.SlotLeverPulled, position);
+        public static void RaiseSlotShuffle(Vector3 position) => RaiseCue(AudioCueId.SlotShuffle, position);
 
         public static void RaiseSlotOutcome(SlotOutcome outcome, Vector3 position) => RaiseCue(CueForOutcome(outcome), position);
 

@@ -13,5 +13,7 @@ namespace OneMoreTime
         SlotLoseScreenShown,
         LossContinueConfirmed,
         SceneTransitionStarted,
+        SlotLeverPulled,
+        SlotShuffle,
     }
 }
