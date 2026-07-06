@@ -36781,8 +36781,16 @@ PrefabInstance:
       value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 3481217858608603798, guid: 93809d3dda7444e4a9369d5f802d050c, type: 3}
+      propertyPath: runQuality.cap
+      value: 70
+      objectReference: {fileID: 0}
+    - target: {fileID: 3481217858608603798, guid: 93809d3dda7444e4a9369d5f802d050c, type: 3}
       propertyPath: runQuality.floor
-      value: 5
+      value: 31
+      objectReference: {fileID: 0}
+    - target: {fileID: 3481217858608603798, guid: 93809d3dda7444e4a9369d5f802d050c, type: 3}
+      propertyPath: runQuality.timePenaltyPerSecondOverPar
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4295392990891541015, guid: 93809d3dda7444e4a9369d5f802d050c, type: 3}
       propertyPath: m_Name

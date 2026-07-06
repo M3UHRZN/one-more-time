@@ -14,8 +14,8 @@ namespace OneMoreTime
 
         void Update()
         {
-            deathsText.text = $"DEATHS  {player.CorpseCount}";
-            tokensText.text = $"TOKENS  {tokens.Count}";
+            deathsText.text = $"{player.CorpseCount}";
+            tokensText.text = $"{tokens.Count}";
         }
     }
 }
