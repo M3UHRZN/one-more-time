@@ -54,7 +54,7 @@ public class LossFlowControllerTests
         SlotController slot = slotGo.AddComponent<SlotController>();
 
         // ForceContinue artık interaction.EndInteraction(instant:true) çağırıyor — o çağrının
-        // dokunduğu alanlar (movement/look/fov/slot/cameraTransform/hud) kadarı kuruluyor.
+        // dokunduğu alanlar (movement/look/fov/slot/cameraTransform) kadarı kuruluyor.
         var movementGo = new GameObject("Movement");
         _createdObjects.Add(movementGo);
         movementGo.SetActive(false); // Awake (inputAsset ister) tetiklenmesin.
@@ -70,10 +70,6 @@ public class LossFlowControllerTests
         _createdObjects.Add(camGo);
         SpeedFovEffect fov = camGo.AddComponent<SpeedFovEffect>();
 
-        var hudGo = new GameObject("Hud");
-        _createdObjects.Add(hudGo);
-        SlotHudDebug hud = hudGo.AddComponent<SlotHudDebug>();
-
         var interactionGo = new GameObject("Interaction");
         _createdObjects.Add(interactionGo);
         interactionGo.SetActive(false);
@@ -82,7 +78,6 @@ public class LossFlowControllerTests
         SetField(interaction, "look", look);
         SetField(interaction, "fov", fov);
         SetField(interaction, "slot", slot);
-        SetField(interaction, "hud", hud);
         SetField(interaction, "cameraTransform", camGo.transform);
 
         var lossGo = new GameObject("LossFlow");
@@ -147,10 +142,6 @@ public class LossFlowControllerTests
         _createdObjects.Add(camGo);
         SpeedFovEffect fov = camGo.AddComponent<SpeedFovEffect>();
 
-        var hudGo = new GameObject("Hud");
-        _createdObjects.Add(hudGo);
-        SlotHudDebug hud = hudGo.AddComponent<SlotHudDebug>();
-
         var interactionGo = new GameObject("Interaction");
         _createdObjects.Add(interactionGo);
         interactionGo.SetActive(false);
@@ -159,7 +150,6 @@ public class LossFlowControllerTests
         SetField(interaction, "look", look);
         SetField(interaction, "fov", fov);
         SetField(interaction, "slot", slot);
-        SetField(interaction, "hud", hud);
         SetField(interaction, "cameraTransform", camGo.transform);
 
         var loseScreenGo = new GameObject("LoseScreen");

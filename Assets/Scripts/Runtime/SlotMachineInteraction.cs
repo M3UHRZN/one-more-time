@@ -16,7 +16,6 @@ namespace OneMoreTime
         [SerializeField] SpeedFovEffect fov;
         [SerializeField] SlotController slot;
         [SerializeField] RunController run;
-        [SerializeField] SlotHudDebug hud;
         [SerializeField] LossFlowController loss;
         [SerializeField] Transform cameraTransform;
         [SerializeField] Transform viewpoint;
@@ -86,7 +85,6 @@ namespace OneMoreTime
 
         void HandleSpinResolved(SlotSpinResult result)
         {
-            hud.enabled = false;
             slot.InputLocked = true;
             GameAudioEvents.RaiseSlotLeverPulled(transform.position);
             GameAudioEvents.RaiseSlotShuffle(transform.position);
@@ -106,7 +104,6 @@ namespace OneMoreTime
                 case SlotOutcome.OneMoreTime: machineAnimator.SetTrigger(OneMoreTrigger); break;
                 case SlotOutcome.NotThisTime: machineAnimator.SetTrigger(LoseTrigger); break;
             }
-            hud.enabled = true;
 
             yield return new WaitForSeconds(resultDisplayDuration);
             slot.InputLocked = false;
@@ -128,7 +125,6 @@ namespace OneMoreTime
         public void EndInteraction(bool instant = false)
         {
             _interacting = false;
-            hud.enabled = true;
             slot.InputLocked = false;
 
             if (_cameraRoutine != null) StopCoroutine(_cameraRoutine);

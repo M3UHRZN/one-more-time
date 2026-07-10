@@ -22466,17 +22466,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 685788c534845d34e9446a426f1e3f89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: OneMoreTime.Runtime::OneMoreTime.RunController
---- !u!114 &1318511078 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3400475262715206044, guid: 93809d3dda7444e4a9369d5f802d050c, type: 3}
-  m_PrefabInstance: {fileID: 9028553798643429937}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87ca83aa7ec01d24e80c799fb1d3752c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: OneMoreTime.Runtime::OneMoreTime.SlotHudDebug
 --- !u!114 &1318511079 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1761946504687696008, guid: 93809d3dda7444e4a9369d5f802d050c, type: 3}
@@ -35923,10 +35912,6 @@ PrefabInstance:
       propertyPath: fov
       value: 
       objectReference: {fileID: 6158797588823945908}
-    - target: {fileID: 481737315887002061, guid: 6a4c8c450601f374b9b35dbe45f48d3e, type: 3}
-      propertyPath: hud
-      value: 
-      objectReference: {fileID: 1318511078}
     - target: {fileID: 481737315887002061, guid: 6a4c8c450601f374b9b35dbe45f48d3e, type: 3}
       propertyPath: run
       value: 

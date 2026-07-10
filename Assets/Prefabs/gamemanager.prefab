@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 3481217858608603798}
   - component: {fileID: 2794913094879123630}
   - component: {fileID: 1761946504687696008}
-  - component: {fileID: 3400475262715206044}
   - component: {fileID: 2331395160426469872}
   m_Layer: 0
   m_Name: gamemanager
@@ -84,19 +83,6 @@ MonoBehaviour:
   run: {fileID: 3481217858608603798}
   tokens: {fileID: 0}
   spinKey: 19
---- !u!114 &3400475262715206044
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4295392990891541015}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87ca83aa7ec01d24e80c799fb1d3752c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: OneMoreTime.Runtime::OneMoreTime.SlotHudDebug
-  slot: {fileID: 1761946504687696008}
 --- !u!114 &2331395160426469872
 MonoBehaviour:
   m_ObjectHideFlags: 0
