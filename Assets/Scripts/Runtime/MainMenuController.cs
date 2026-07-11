@@ -5,9 +5,12 @@ namespace OneMoreTime
 {
     public class MainMenuController : MonoBehaviour
     {
-        [SerializeField] string startSceneName = "lvl1";
+        [SerializeField] string startSceneName = "LVL1";
         [SerializeField] GameObject mainMenuPanel;
         [SerializeField] GameObject creditsPanel;
+        [SerializeField] SceneFadeTransition fadeTransition;
+
+        bool _starting;
 
         void Awake()
         {
@@ -24,13 +27,24 @@ namespace OneMoreTime
 
         public void StartGame()
         {
+            if (_starting) return;
+
             if (string.IsNullOrWhiteSpace(startSceneName))
             {
                 Debug.LogWarning("MainMenuController: Start scene name is empty.");
                 return;
             }
 
-            SceneManager.LoadScene(startSceneName);
+            _starting = true;
+
+            if (fadeTransition != null)
+            {
+                fadeTransition.LoadScene(startSceneName);
+            }
+            else
+            {
+                SceneManager.LoadScene(startSceneName);
+            }
         }
 
         public void OpenCredits()

@@ -340,7 +340,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1446713214}
         m_TargetAssemblyTypeName: OneMoreTime.MainMenuController, OneMoreTime.Runtime
-        m_MethodName: StartGame
+        m_MethodName: ExitGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -974,9 +974,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46c8b61f0d7a5334c924e15b1059335e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: OneMoreTime.Runtime::OneMoreTime.MainMenuController
-  startSceneName: lvl1
+  startSceneName: MainMenu
   mainMenuPanel: {fileID: 1453102823}
   creditsPanel: {fileID: 640197735}
+  fadeTransition: {fileID: 0}
 --- !u!1 &1453102823
 GameObject:
   m_ObjectHideFlags: 0
