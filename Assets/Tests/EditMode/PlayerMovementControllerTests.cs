@@ -185,6 +185,24 @@ public class PlayerMovementControllerTests
             "Continuous wall contact must not refresh the consumed charge again.");
     }
 
+    [Test]
+    public void SetControlEnabled_False_ResetsAnimationFacingState()
+    {
+        PlayerMovementController controller = CreateController(Vector3.zero);
+        SetField(controller, "_lastHorizontalVelocity", Vector3.forward * 12f);
+        // HorizontalSpeed private-set; koşu durumunu simüle etmek için doğrudan property'yi kur.
+        typeof(PlayerMovementController)
+            .GetProperty("HorizontalSpeed").SetValue(controller, 12f);
+        SetField(controller, "_sliding", true);
+
+        controller.SetControlEnabled(false);
+
+        Assert.AreEqual(0f, controller.HorizontalSpeed, 0.0001f,
+            "Kontrol kapatılınca animasyona giden hız sıfırlanmalı (idle).");
+        Assert.IsFalse(GetField<bool>(controller, "_sliding"));
+        Assert.IsFalse(controller.ControlEnabled);
+    }
+
     PlayerMovementController CreateController(Vector3 position)
     {
         Object projectInputAsset = AssetDatabase.LoadMainAssetAtPath("Assets/InputSystem_Actions.inputactions");

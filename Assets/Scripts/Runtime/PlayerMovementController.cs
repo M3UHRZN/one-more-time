@@ -59,7 +59,16 @@ namespace OneMoreTime
 
         public void SetControlEnabled(bool enabled)
         {
-            if (!enabled) _rb.linearVelocity = Vector3.zero;
+            if (!enabled)
+            {
+                // Animator SpeedParam donmasın diye animasyona bakan durumu da idle'a çek:
+                // FixedUpdate erken return ettiğinden bu alanlar aksi halde son koşu değerinde kalır.
+                _rb.linearVelocity = Vector3.zero;
+                _lastHorizontalVelocity = Vector3.zero;
+                HorizontalSpeed = 0f;
+                _sliding = false;
+                if (_wallRun.IsActive) _wallRun.Exit(false);
+            }
             _rb.isKinematic = !enabled;
             ControlEnabled = enabled;
         }
