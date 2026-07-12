@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6884755748561791458}
   - component: {fileID: 145079626631910452}
   - component: {fileID: 6486612235179504750}
-  - component: {fileID: 4674903707778195259}
+  - component: {fileID: 5992368477122770392}
   m_Layer: 0
   m_Name: kaktus1
   m_TagString: Untagged
@@ -28,13 +28,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3660208637211325065}
   serializedVersion: 2
-  m_LocalRotation: {x: -4.3297806e-17, y: 0.7071068, z: 0.7071068, w: -4.3297806e-17}
+  m_LocalRotation: {x: -0, y: -0.7071068, z: -0.7071068, w: 0}
   m_LocalPosition: {x: 19.443682, y: 0.6119316, z: 0.23554325}
   m_LocalScale: {x: 0.6263846, y: 0.6263846, z: 0.6263846}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: -180}
 --- !u!33 &6884755748561791458
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -104,8 +104,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 089b5206286635742a83b3dfe3d39906, type: 3}
   m_Name: 
   m_EditorClassIdentifier: OneMoreTime.Runtime::OneMoreTime.Hazard
---- !u!136 &4674903707778195259
-CapsuleCollider:
+--- !u!65 &5992368477122770392
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -119,11 +119,9 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 2.320035
-  m_Height: 5.0228925
-  m_Direction: 1
-  m_Center: {x: 0.43139175, y: -0.1404742, z: 0.9019799}
+  serializedVersion: 3
+  m_Size: {x: 2.3007042, y: 2.0491126, z: 4.653171}
+  m_Center: {x: 0.15220349, y: -0.02043374, z: 0.908533}
